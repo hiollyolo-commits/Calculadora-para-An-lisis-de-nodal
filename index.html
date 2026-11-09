@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ANSEP • Analizador Nodal de Redes Eléctricas (Ybus & Zbus)</title>
+  <title>ANSEP • Power Systems Suite (Nodal & Gauss-Seidel)</title>
   <style>
     :root {
       --bg: #00132e;
@@ -11,11 +11,11 @@
       --panel: #002456;
       --card: #002f6c;
       --card-hover: #003882;
-      --card-dark: #001d45;
+      --card-dark: #001a3d;
       --gold: #E2C55A;
       --gold-hover: #f3d875;
       --gold-dark: #A88C00;
-      --gold-soft: rgba(226, 197, 90, 0.15);
+      --gold-soft: rgba(226, 197, 90, 0.12);
       --text: #EAF0FA;
       --text-muted: #9FB4D3;
       --border: rgba(226, 197, 90, 0.28);
@@ -25,7 +25,7 @@
       --danger-hover: #e06060;
       --info: #58a6ff;
       --font: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      --font-mono: 'Consolas', 'Courier New', monospace;
+      --font-mono: 'Consolas', 'JetBrains Mono', 'Courier New', monospace;
     }
 
     * {
@@ -46,8 +46,8 @@
 
     /* Scrollbars */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
     }
     ::-webkit-scrollbar-track {
       background: var(--bg-alt);
@@ -65,13 +65,13 @@
     header {
       background: linear-gradient(180deg, #001f52 0%, var(--panel) 100%);
       border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
+      padding: 12px 24px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .brand {
@@ -81,8 +81,8 @@
     }
 
     .brand-icon {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
       border-radius: 10px;
       display: flex;
@@ -90,14 +90,13 @@
       justify-content: center;
       color: var(--bg);
       font-weight: 900;
-      font-size: 22px;
-      box-shadow: 0 0 16px rgba(226, 197, 90, 0.35);
+      font-size: 20px;
     }
 
     .brand-text h1 {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       color: var(--text);
     }
 
@@ -106,40 +105,168 @@
     }
 
     .brand-text p {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
     }
 
     .header-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Top Mode Selector Bar */
+    .mode-switch-bar {
+      background: #001738;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .mode-nav {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .mode-tab-btn {
+      padding: 7px 18px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .mode-tab-btn.active {
+      background: var(--card);
+      color: var(--gold);
+      border-color: var(--border);
+    }
+
+    /* Badges & Tables Fixes */
+    .badge {
+      white-space: nowrap !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 3px 9px !important;
+      line-height: 1.2 !important;
+      min-width: max-content !important;
+      font-size: 0.72rem;
+      border-radius: 6px;
+      background: var(--gold-soft);
+      color: var(--gold);
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .badge-subtle {
+      background: rgba(159, 180, 211, 0.1);
+      color: var(--text-muted);
+      border-color: var(--border-subtle);
+    }
+
+    .badge-success {
+      background: rgba(95, 211, 141, 0.15);
+      color: var(--success);
+      border-color: rgba(95, 211, 141, 0.35);
+    }
+
+    .badge-info {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--info);
+      border-color: rgba(88, 166, 255, 0.35);
+    }
+
+    .table-container {
+      max-height: 280px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--card-dark);
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    th {
+      background: #001836;
+      color: var(--gold);
+      padding: 9px 12px;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap !important;
+      vertical-align: middle !important;
+      z-index: 10;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(159, 180, 211, 0.08);
+      color: var(--text);
+      white-space: nowrap !important;
+      vertical-align: middle !important;
+    }
+
+    tr:hover td {
+      background: rgba(226, 197, 90, 0.04);
+    }
+
+    .text-mono {
+      font-family: var(--font-mono);
     }
 
     /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      padding: 8px 16px;
-      font-size: 0.85rem;
+      padding: 8px 15px;
+      font-size: 0.83rem;
       font-weight: 700;
       font-family: inherit;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
       border: 1px solid transparent;
       user-select: none;
+      white-space: nowrap;
     }
 
     .btn-gold {
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
       color: #00132e;
-      box-shadow: 0 2px 8px rgba(226, 197, 90, 0.25);
     }
     .btn-gold:hover {
       background: var(--gold-hover);
-      box-shadow: 0 4px 14px rgba(226, 197, 90, 0.4);
       transform: translateY(-1px);
     }
 
@@ -154,16 +281,6 @@
       color: var(--gold);
     }
 
-    .btn-success {
-      background: rgba(95, 211, 141, 0.15);
-      border-color: var(--success);
-      color: var(--success);
-    }
-    .btn-success:hover {
-      background: var(--success);
-      color: var(--bg);
-    }
-
     .btn-danger {
       background: rgba(255, 123, 123, 0.15);
       border-color: var(--danger);
@@ -175,75 +292,73 @@
     }
 
     .btn-sm {
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      border-radius: 5px;
     }
 
     .btn-block {
       width: 100%;
-      justify-content: center;
-      padding: 12px;
-      font-size: 1rem;
+      padding: 11px;
+      font-size: 0.95rem;
     }
 
-    /* Main Container */
+    /* Main Container Grid */
     main {
       flex: 1;
-      display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 20px;
       padding: 20px 24px;
       max-width: 1800px;
       width: 100%;
       margin: 0 auto;
     }
 
-    @media (max-width: 1100px) {
-      main {
+    .mode-view {
+      display: none;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+    }
+
+    .mode-view.active {
+      display: grid;
+    }
+
+    @media (max-width: 1120px) {
+      .mode-view {
         grid-template-columns: 1fr;
       }
     }
 
-    /* Left Panel: Inputs */
-    .left-panel {
+    /* Panels */
+    .left-panel, .right-panel {
       display: flex;
       flex-direction: column;
       gap: 16px;
+      min-width: 0;
     }
 
     .card {
       background: var(--panel);
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 16px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
     }
 
     .card-title {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: var(--gold);
       margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
     }
 
-    .badge {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: var(--gold-soft);
-      color: var(--gold);
-      border: 1px solid var(--border);
-    }
-
-    /* Form Fields */
+    /* Form Inputs */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 10px;
       margin-bottom: 10px;
     }
@@ -255,7 +370,7 @@
     }
 
     .form-group label {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
     }
@@ -265,73 +380,19 @@
       border: 1px solid var(--border-subtle);
       color: var(--text);
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       padding: 8px 10px;
       border-radius: 6px;
       outline: none;
-      transition: all 0.2s;
+      transition: border-color 0.15s ease;
       width: 100%;
     }
 
     .input-field:focus, .select-field:focus {
       border-color: var(--gold);
-      box-shadow: 0 0 0 2px var(--gold-soft);
     }
 
-    .input-field::placeholder {
-      color: rgba(159, 180, 211, 0.45);
-    }
-
-    /* Small Tables in Left Panel */
-    .table-container {
-      max-height: 180px;
-      overflow-y: auto;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      background: var(--card-dark);
-      margin-top: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      text-align: center;
-    }
-
-    th {
-      background: #001a3d;
-      color: var(--gold);
-      padding: 8px 6px;
-      font-weight: 700;
-      position: sticky;
-      top: 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.75rem;
-    }
-
-    td {
-      padding: 6px;
-      border-bottom: 1px solid rgba(159, 180, 211, 0.08);
-      color: var(--text);
-    }
-
-    tr:hover td {
-      background: rgba(226, 197, 90, 0.05);
-    }
-
-    .text-mono {
-      font-family: var(--font-mono);
-    }
-
-    /* Right Panel: Output and Procedure */
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 0;
-    }
-
+    /* Tabs Header */
     .tabs-header {
       display: flex;
       align-items: center;
@@ -344,26 +405,25 @@
 
     .tab-buttons {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .tab-btn {
-      padding: 8px 16px;
-      font-size: 0.9rem;
+      padding: 7px 15px;
+      font-size: 0.84rem;
       font-weight: 700;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid transparent;
       background: var(--card-dark);
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
 
     .tab-btn.active {
       background: var(--card);
       color: var(--gold);
       border-color: var(--border);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
     .tab-controls {
@@ -381,15 +441,15 @@
       display: flex;
     }
 
-    /* Status Banner */
+    /* Banner */
     .status-banner {
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
     }
 
@@ -405,7 +465,7 @@
       color: var(--danger);
     }
 
-    /* Styled Matrix Display */
+    /* Matrix Display */
     .matrices-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -415,16 +475,16 @@
     .matrix-card {
       background: var(--panel);
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 10px;
+      padding: 14px;
       overflow-x: auto;
     }
 
     .matrix-card h3 {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--gold);
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -443,7 +503,7 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 8px;
+      width: 7px;
       border: 2px solid var(--gold);
     }
 
@@ -459,9 +519,9 @@
 
     .matrix-table {
       border-collapse: separate;
-      border-spacing: 12px 8px;
+      border-spacing: 12px 6px;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.79rem;
       white-space: nowrap;
     }
 
@@ -475,7 +535,7 @@
 
     .matrix-table td {
       border: none;
-      padding: 4px 8px;
+      padding: 4px 7px;
       background: var(--card-dark);
       border-radius: 4px;
       color: var(--text);
@@ -486,16 +546,16 @@
       border: 1px solid var(--border);
     }
 
-    /* Procedure Steps */
+    /* Procedure Step-by-Step Box (Clean & Monospace) */
     .step-card {
       background: var(--panel);
       border: 1px solid var(--border-subtle);
       border-left: 4px solid var(--gold);
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .step-header {
@@ -505,8 +565,8 @@
     }
 
     .step-num {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: var(--gold);
       color: var(--bg);
@@ -514,71 +574,71 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.76rem;
     }
 
     .step-title {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: var(--text);
     }
 
     .step-content {
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .step-math {
       background: var(--card-dark);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.81rem;
       color: var(--text);
       overflow-x: auto;
-      margin-top: 6px;
-      white-space: pre-wrap;
+      line-height: 1.6;
+      white-space: pre;
     }
 
-    /* Modal / Toast Notifications */
+    /* Toast Notification */
     .toast-container {
       position: fixed;
       bottom: 24px;
       right: 24px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       z-index: 9999;
     }
 
     .toast {
-      padding: 12px 18px;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 0.82rem;
       font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
       display: flex;
       align-items: center;
-      gap: 10px;
-      animation: slideIn 0.3s ease forwards;
+      gap: 8px;
+      animation: slideIn 0.25s ease forwards;
     }
 
     .toast-ok {
-      background: #003822;
+      background: #003620;
       border: 1px solid var(--success);
       color: var(--success);
     }
 
     .toast-bad {
-      background: #400d0d;
+      background: #420f0f;
       border: 1px solid var(--danger);
       color: var(--danger);
     }
 
     .toast-info {
-      background: #002554;
+      background: #002754;
       border: 1px solid var(--info);
       color: var(--info);
     }
@@ -588,326 +648,642 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
-    /* Print View */
+    /* Print Clean View */
     @media print {
-      body {
-        background: #fff;
-        color: #000;
-      }
-      header, .left-panel, .tab-controls, .btn, .toast-container {
-        display: none !important;
-      }
-      main {
-        display: block;
-        padding: 0;
-      }
-      .tab-content {
-        display: flex !important;
-      }
+      body { background: #fff; color: #000; }
+      header, .mode-switch-bar, .left-panel, .tab-controls, .btn, .toast-container { display: none !important; }
+      main { display: block; padding: 0; }
+      .tab-content { display: flex !important; }
       .card, .matrix-card, .step-card {
-        background: #fff;
-        border: 1px solid #ccc;
-        color: #000;
-        box-shadow: none;
-        page-break-inside: avoid;
+        background: #fff; border: 1px solid #999; color: #000; box-shadow: none; page-break-inside: avoid;
       }
-      .matrix-table td {
-        background: #eee;
-        color: #000;
-      }
-      .matrix-bracket-container::before,
-      .matrix-bracket-container::after {
-        border-color: #000;
-      }
+      .matrix-table td { background: #eee; color: #000; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top App Header -->
   <header>
     <div class="brand">
       <div class="brand-icon">⚡</div>
       <div class="brand-text">
-        <h1>ANSEP <span>• Ybus & Zbus Pro</span></h1>
-        <p>Analizador Nodal de Redes Eléctricas de Potencia (Thévenin, Norton, Flujos y Pérdidas)</p>
+        <h1>ANSEP <span>• Power Systems Suite</span></h1>
+        <p>Análisis Matricial Nodal de Redes y Flujo de Potencia por Gauss-Seidel</p>
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline" id="btn-ejemplo-fig2">📖 Ejemplo Examen (Fig. 2)</button>
-      <button class="btn btn-outline" id="btn-ejemplo-pizarron">📐 Ejemplo Pizarrón</button>
-      <button class="btn btn-danger btn-sm" id="btn-limpiar-todo">🗑️ Limpiar Todo</button>
+      <!-- Mode 1 Actions -->
+      <div id="actions-mode-nodal" style="display: flex; gap: 8px;">
+        <button class="btn btn-outline" id="btn-ejemplo-fig2">📖 Ejemplo Actividad (Fig. 2)</button>
+        <button class="btn btn-outline" id="btn-ejemplo-pizarron">📐 Ejemplo Pizarrón</button>
+        <button class="btn btn-danger btn-sm" id="btn-limpiar-nodal">🗑️ Limpiar Todo</button>
+      </div>
+      <!-- Mode 2 Actions -->
+      <div id="actions-mode-gs" style="display: none; gap: 8px;">
+        <button class="btn btn-gold" id="btn-preset-gs-prob1">⚡ Cargar Problema 1 (Flujo Gauss-Seidel 3 Barras)</button>
+        <button class="btn btn-danger btn-sm" id="btn-limpiar-gs">🗑️ Limpiar Flujo</button>
+      </div>
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Mode Switcher Navigation -->
+  <div class="mode-switch-bar">
+    <div class="mode-nav">
+      <button class="mode-tab-btn active" id="tab-mode-nodal">
+        <span>🔘 Modo 1: Análisis Nodal Lineal [I] = [Y_bus][V]</span>
+      </button>
+      <button class="mode-tab-btn" id="tab-mode-gs">
+        <span>⚡ Modo 2: Flujo de Potencia (Gauss-Seidel)</span>
+      </button>
+    </div>
+    <div style="font-size: 0.8rem; color: var(--gold); font-weight: 600;" id="mode-status-indicator">
+      Módulo Nodal Activo
+    </div>
+  </div>
+
   <main>
-    <!-- Left Panel: Data Entry -->
-    <div class="left-panel">
+    <!-- =========================================================================
+         MODO 1: ANÁLISIS NODAL LINEAL [I] = [Ybus][V]
+         ========================================================================= -->
+    <div class="mode-view active" id="view-mode-nodal">
       
-      <!-- 1. Red Configuration -->
-      <div class="card">
-        <div class="card-title">
-          <span>1. Configuración de la Red</span>
-          <span class="badge" id="badge-nodos">3 Nodos</span>
-        </div>
-        <div class="form-grid" style="grid-template-columns: 1fr auto auto;">
-          <div class="form-group">
-            <label for="num-nodos">Cantidad de Nodos Activos (Ref. 0 = Tierra):</label>
-            <input type="number" id="num-nodos" class="input-field" min="1" max="20" value="3">
+      <!-- Panel Izquierdo: Entradas -->
+      <div class="left-panel">
+        
+        <!-- 1. Configuración de Nodos -->
+        <div class="card">
+          <div class="card-title">
+            <span>1. Configuración de la Red</span>
+            <span class="badge" id="badge-nodos">3 Nodos</span>
           </div>
-          <div class="form-group" style="justify-content: flex-end;">
-            <button class="btn btn-gold" id="btn-aplicar-nodos">Aplicar</button>
-          </div>
-          <div class="form-group" style="justify-content: flex-end;">
-            <button class="btn btn-outline" id="btn-reiniciar-red">Reiniciar</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Branches -->
-      <div class="card">
-        <div class="card-title">
-          <span>2. Ramas e Impedancias / Admitancias</span>
-          <span class="badge" id="badge-ramas">0 Ramas</span>
-        </div>
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-          <div class="form-group">
-            <label for="rama-de">De Nodo:</label>
-            <select id="rama-de" class="select-field"></select>
-          </div>
-          <div class="form-group">
-            <label for="rama-a">A Nodo (0 = Tierra):</label>
-            <select id="rama-a" class="select-field"></select>
-          </div>
-        </div>
-        <div class="form-grid" style="grid-template-columns: 110px 1fr;">
-          <div class="form-group">
-            <label for="rama-tipo">Ingresar como:</label>
-            <select id="rama-tipo" class="select-field">
-              <option value="Z">Impedancia Z</option>
-              <option value="Y">Admitancia Y</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="rama-valor">Valor Complejo (ej. .02+j0.04, j0.5, 1.2∠-30):</label>
-            <input type="text" id="rama-valor" class="input-field" placeholder="0.02 + j0.04">
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 8px;">
-          <button class="btn btn-gold btn-sm" id="btn-agregar-rama">➕ Agregar / Guardar Rama</button>
-          <button class="btn btn-outline btn-sm" id="btn-cancelar-edit-rama" style="display:none;">Cancelar Edición</button>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>De</th>
-                <th>A</th>
-                <th>Tipo</th>
-                <th>Valor Ingresado</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-ramas-body">
-              <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin ramas registradas.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 3. Sources (Dual: Voltage or Current) -->
-      <div class="card">
-        <div class="card-title">
-          <span>3. Fuentes: Generadores o Corrientes</span>
-          <span class="badge" id="badge-fuentes">0 Fuentes</span>
-        </div>
-        <div class="form-grid" style="grid-template-columns: 140px 1fr;">
-          <div class="form-group">
-            <label for="fuente-tipo">Tipo de Fuente:</label>
-            <select id="fuente-tipo" class="select-field">
-              <option value="I">Corriente Directa [I]</option>
-              <option value="V">Generador Voltaje (Thévenin)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="fuente-nodo">Nodo Conectado:</label>
-            <select id="fuente-nodo" class="select-field"></select>
+          <div class="form-grid" style="grid-template-columns: 1fr auto auto;">
+            <div class="form-group">
+              <label for="num-nodos">Cantidad de Nodos Activos (Ref. 0 = Tierra):</label>
+              <input type="number" id="num-nodos" class="input-field" min="1" max="25" value="3">
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button class="btn btn-gold" id="btn-aplicar-nodos">Aplicar</button>
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button class="btn btn-outline" id="btn-reiniciar-red">Reiniciar</button>
+            </div>
           </div>
         </div>
 
-        <!-- Dynamic source inputs -->
-        <div id="campos-fuente-i" class="form-group">
-          <label for="fuente-i-valor">Corriente Inyectada I (pu) (ej. 1.38-j2.75 o 3.07∠-63.35):</label>
-          <input type="text" id="fuente-i-valor" class="input-field" placeholder="1.38 - j2.75">
-        </div>
-
-        <div id="campos-fuente-v" style="display: none;">
+        <!-- 2. Ramas -->
+        <div class="card">
+          <div class="card-title">
+            <span>2. Ramas e Impedancias / Admitancias</span>
+            <span class="badge" id="badge-ramas">0 Ramas</span>
+          </div>
           <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
             <div class="form-group">
-              <label for="fuente-v-mag">Tensión |E| (pu):</label>
-              <input type="number" step="any" id="fuente-v-mag" class="input-field" placeholder="1.0" value="1.0">
+              <label for="rama-de">De Nodo:</label>
+              <select id="rama-de" class="select-field"></select>
             </div>
             <div class="form-group">
-              <label for="fuente-v-ang">Ángulo ∠ (°):</label>
-              <input type="number" step="any" id="fuente-v-ang" class="input-field" placeholder="0.0" value="0.0">
+              <label for="rama-a">A Nodo (0 = Tierra):</label>
+              <select id="rama-a" class="select-field"></select>
             </div>
           </div>
-          <div class="form-group" style="margin-top: 6px;">
-            <label for="fuente-v-z">Impedancia Interna Z_int (ej. j1.0 o 0.0+j0.8):</label>
-            <input type="text" id="fuente-v-z" class="input-field" placeholder="0.0 + j1.0">
+          <div class="form-grid" style="grid-template-columns: 110px 1fr;">
+            <div class="form-group">
+              <label for="rama-tipo">Ingresar como:</label>
+              <select id="rama-tipo" class="select-field">
+                <option value="Z">Impedancia Z</option>
+                <option value="Y">Admitancia Y</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="rama-valor">Valor Complejo (ej. .02+j0.04, j0.5, 1.2∠-30):</label>
+              <input type="text" id="rama-valor" class="input-field" placeholder="0.02 + j0.04">
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <button class="btn btn-gold btn-sm" id="btn-agregar-rama">➕ Agregar / Guardar Rama</button>
+            <button class="btn btn-outline btn-sm" id="btn-cancelar-edit-rama" style="display:none;">Cancelar Edición</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>De</th>
+                  <th>A</th>
+                  <th>Tipo</th>
+                  <th>Valor Ingresado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-ramas-body">
+                <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin ramas registradas.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-          <button class="btn btn-gold btn-sm" id="btn-agregar-fuente">➕ Agregar / Guardar Fuente</button>
-          <button class="btn btn-outline btn-sm" id="btn-cancelar-edit-fuente" style="display:none;">Cancelar Edición</button>
+        <!-- 3. Fuentes -->
+        <div class="card">
+          <div class="card-title">
+            <span>3. Fuentes: Generadores o Corrientes</span>
+            <span class="badge" id="badge-fuentes">0 Fuentes</span>
+          </div>
+          <div class="form-grid" style="grid-template-columns: 140px 1fr;">
+            <div class="form-group">
+              <label for="fuente-tipo">Tipo de Fuente:</label>
+              <select id="fuente-tipo" class="select-field">
+                <option value="I">Corriente Directa [I]</option>
+                <option value="V">Generador Voltaje (Thévenin)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fuente-nodo">Nodo Conectado:</label>
+              <select id="fuente-nodo" class="select-field"></select>
+            </div>
+          </div>
+
+          <div id="campos-fuente-i" class="form-group">
+            <label for="fuente-i-valor">Corriente Inyectada I (pu) (ej. 1.38-j2.75 o 3.07∠-63.35):</label>
+            <input type="text" id="fuente-i-valor" class="input-field" placeholder="1.38 - j2.75">
+          </div>
+
+          <div id="campos-fuente-v" style="display: none;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="form-group">
+                <label for="fuente-v-mag">Tensión |E| (pu):</label>
+                <input type="number" step="any" id="fuente-v-mag" class="input-field" value="1.0">
+              </div>
+              <div class="form-group">
+                <label for="fuente-v-ang">Ángulo ∠ (°):</label>
+                <input type="number" step="any" id="fuente-v-ang" class="input-field" value="0.0">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 6px;">
+              <label for="fuente-v-z">Impedancia Interna Z_int (ej. j1.0 o 0.0+j0.8):</label>
+              <input type="text" id="fuente-v-z" class="input-field" placeholder="0.0 + j1.0">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="btn btn-gold btn-sm" id="btn-agregar-fuente">➕ Agregar / Guardar Fuente</button>
+            <button class="btn btn-outline btn-sm" id="btn-cancelar-edit-fuente" style="display:none;">Cancelar Edición</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Nodo</th>
+                  <th>Parámetros</th>
+                  <th>Inyección Norton</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-fuentes-body">
+                <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin fuentes registradas.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Tipo</th>
-                <th>Nodo</th>
-                <th>Parámetros</th>
-                <th>Inyección Norton</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-fuentes-body">
-              <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin fuentes registradas.</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <button class="btn btn-gold btn-block" id="btn-calcular-nodal">
+          ▶ CALCULAR MATRICES Y VOLTAJES
+        </button>
+
       </div>
 
-      <!-- Action Button -->
-      <button class="btn btn-gold btn-block" id="btn-calcular">
-        ▶ CALCULAR MATRICES Y VOLTAJES
-      </button>
+      <!-- Panel Derecho: Resultados Nodal -->
+      <div class="right-panel">
+        
+        <div class="tabs-header">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="tab-res-nodal">Resultados y Matrices</button>
+            <button class="tab-btn" data-tab="tab-proc-nodal">Procedimiento Paso a Paso</button>
+          </div>
+          <div class="tab-controls">
+            <select id="formato-num-nodal" class="select-field" style="width: auto; padding: 5px 9px;">
+              <option value="rect">Formato: Rectangular</option>
+              <option value="polar">Formato: Polar</option>
+            </select>
+            <button class="btn btn-outline btn-sm" id="btn-copiar-nodal">📋 Copiar Reporte</button>
+            <button class="btn btn-outline btn-sm" id="btn-imprimir-nodal">🖨️ Imprimir / PDF</button>
+          </div>
+        </div>
+
+        <!-- TAB 1: RESULTADOS NODAL -->
+        <div id="tab-res-nodal" class="tab-content active">
+          <div id="status-container-nodal">
+            <div class="status-banner ok" id="status-banner-nodal">
+              <span>✓ Sistema listo. Carga un circuito o el ejemplo de la actividad y pulsa "Calcular".</span>
+            </div>
+          </div>
+
+          <div class="matrices-grid">
+            <div class="matrix-card">
+              <h3>Matriz de Admitancias Y_bus (pu)</h3>
+              <div class="matrix-bracket-container" id="ybus-container">
+                <p style="color:var(--text-muted); font-size:0.83rem;">Presiona "Calcular" para desplegar Y_bus.</p>
+              </div>
+            </div>
+            <div class="matrix-card">
+              <h3>Matriz de Impedancias Z_bus = Y_bus⁻¹ (pu)</h3>
+              <div class="matrix-bracket-container" id="zbus-container">
+                <p style="color:var(--text-muted); font-size:0.83rem;">Presiona "Calcular" para desplegar Z_bus.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <span>Voltajes Nodales Fasoriales [V]</span>
+              <span class="badge">[V] = [Z_bus] · [I]</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nodo</th>
+                    <th>Tensión Rectangular (a + jb pu)</th>
+                    <th>Tensión Polar (|V| ∠ θ°)</th>
+                    <th>Magnitud |V| (pu)</th>
+                    <th>Ángulo δ (grados)</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-voltajes-body">
+                  <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin datos calculados.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <span>Flujos de Línea y Pérdidas de Potencia (S = V · I*)</span>
+              <span class="badge">S_ij / S_ji</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rama</th>
+                    <th>Corriente I_ij (pu)</th>
+                    <th>Flujo S_ij (pu)</th>
+                    <th>Flujo S_ji (pu)</th>
+                    <th>Pérdidas Totales (P + jQ pu)</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-flujos-body">
+                  <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin flujos calculados.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: PROCEDIMIENTO NODAL -->
+        <div id="tab-proc-nodal" class="tab-content">
+          <div id="procedimiento-container-nodal" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+
+      </div>
 
     </div>
 
-    <!-- Right Panel: Procedure & Results -->
-    <div class="right-panel">
+    <!-- =========================================================================
+         MODO 2: FLUJO DE POTENCIA (GAUSS-SEIDEL)
+         ========================================================================= -->
+    <div class="mode-view" id="view-mode-gs">
       
-      <!-- Tab Header and Toolbar -->
-      <div class="tabs-header">
-        <div class="tab-buttons">
-          <button class="tab-btn active" data-tab="tab-resultados">Resultados y Matrices</button>
-          <button class="tab-btn" data-tab="tab-procedimiento">Procedimiento Paso a Paso</button>
-        </div>
-        <div class="tab-controls">
-          <select id="formato-num" class="select-field" style="width: auto; padding: 6px 10px;">
-            <option value="rect">Formato: Rectangular</option>
-            <option value="polar">Formato: Polar</option>
-          </select>
-          <button class="btn btn-outline btn-sm" id="btn-copiar">📋 Copiar Reporte</button>
-          <button class="btn btn-outline btn-sm" id="btn-imprimir">🖨️ Imprimir / PDF</button>
-        </div>
-      </div>
-
-      <!-- TAB 1: RESULTADOS -->
-      <div id="tab-resultados" class="tab-content active">
+      <!-- Panel Izquierdo: Configuración GS -->
+      <div class="left-panel">
         
-        <div id="status-container">
-          <div class="status-banner ok" id="status-banner">
-            <span>✓ Sistema listo para resolver. Agrega elementos o carga un ejemplo y pulsa "Calcular".</span>
-          </div>
-        </div>
-
-        <!-- Matrices Ybus y Zbus -->
-        <div class="matrices-grid">
-          <div class="matrix-card">
-            <h3>Matriz de Admitancias Ybus (pu)</h3>
-            <div class="matrix-bracket-container" id="ybus-container">
-              <p style="color:var(--text-muted); font-size:0.85rem;">Presiona "Calcular" para ver la matriz Ybus.</p>
-            </div>
-          </div>
-          <div class="matrix-card">
-            <h3>Matriz de Impedancias Zbus = Ybus⁻¹ (pu)</h3>
-            <div class="matrix-bracket-container" id="zbus-container">
-              <p style="color:var(--text-muted); font-size:0.85rem;">Presiona "Calcular" para ver la matriz Zbus.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Voltajes Nodales -->
+        <!-- 1. Parámetros del Flujo -->
         <div class="card">
           <div class="card-title">
-            <span>Voltajes Nodales Resultantes [V]</span>
-            <span class="badge">Ecuación: [V] = [Zbus] · [I]</span>
+            <span>1. Parámetros de Simulación (Gauss-Seidel)</span>
+            <span class="badge">S_base: 100 MVA</span>
           </div>
-          <div class="table-container" style="max-height: 250px;">
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label for="gs-sbase">Potencia Base S_base (MVA):</label>
+              <input type="number" id="gs-sbase" class="input-field" value="100">
+            </div>
+            <div class="form-group">
+              <label for="gs-tol">Tolerancia de Error (ε):</label>
+              <input type="number" step="any" id="gs-tol" class="input-field" value="0.00001">
+            </div>
+          </div>
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label for="gs-max-iter">Máx. Iteraciones:</label>
+              <input type="number" id="gs-max-iter" class="input-field" value="30">
+            </div>
+            <div class="form-group">
+              <label for="gs-alpha">Factor Aceleración (α):</label>
+              <input type="number" step="0.1" id="gs-alpha" class="input-field" value="1.0">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Barras / Nodos del Flujo -->
+        <div class="card">
+          <div class="card-title">
+            <span>2. Configuración de Barras</span>
+            <span class="badge" id="badge-gs-barras">3 Barras</span>
+          </div>
+          
+          <div class="form-grid" style="grid-template-columns: 100px 1fr;">
+            <div class="form-group">
+              <label for="gs-bus-id">N° Barra:</label>
+              <input type="number" id="gs-bus-id" class="input-field" value="2" min="1">
+            </div>
+            <div class="form-group">
+              <label for="gs-bus-type">Tipo de Barra:</label>
+              <select id="gs-bus-type" class="select-field">
+                <option value="PQ">PQ (Barra de Carga)</option>
+                <option value="SLACK">Slack / Oscilante (V, δ)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Campos Slack -->
+          <div id="gs-bus-fields-slack" style="display:none;" class="form-grid">
+            <div class="form-group">
+              <label for="gs-v-mag-slack">Voltaje Magnitud |V| (pu):</label>
+              <input type="number" step="any" id="gs-v-mag-slack" class="input-field" value="1.0">
+            </div>
+            <div class="form-group">
+              <label for="gs-v-ang-slack">Ángulo δ (°):</label>
+              <input type="number" step="any" id="gs-v-ang-slack" class="input-field" value="0.0">
+            </div>
+          </div>
+
+          <!-- Campos PQ -->
+          <div id="gs-bus-fields-pq">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="form-group">
+                <label for="gs-pl">Carga Activa P_L (MW):</label>
+                <input type="number" step="any" id="gs-pl" class="input-field" value="400">
+              </div>
+              <div class="form-group">
+                <label for="gs-ql">Carga Reactiva Q_L (Mvar):</label>
+                <input type="number" step="any" id="gs-ql" class="input-field" value="320">
+              </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="form-group">
+                <label for="gs-pg">Generación P_G (MW):</label>
+                <input type="number" step="any" id="gs-pg" class="input-field" value="0">
+              </div>
+              <div class="form-group">
+                <label for="gs-qg">Generación Q_G (Mvar):</label>
+                <input type="number" step="any" id="gs-qg" class="input-field" value="0">
+              </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="form-group">
+                <label for="gs-v0-mag">Estimación |V^(0)| (pu):</label>
+                <input type="number" step="any" id="gs-v0-mag" class="input-field" value="1.0">
+              </div>
+              <div class="form-group">
+                <label for="gs-v0-ang">Ángulo Inicial δ^(0) (°):</label>
+                <input type="number" step="any" id="gs-v0-ang" class="input-field" value="0.0">
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <button class="btn btn-gold btn-sm" id="btn-agregar-gs-bus">➕ Guardar Barra</button>
+            <button class="btn btn-outline btn-sm" id="btn-cancelar-gs-bus" style="display:none;">Cancelar Edición</button>
+          </div>
+
+          <div class="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Nodo</th>
-                  <th>Tensión Rectangular (a + jb pu)</th>
-                  <th>Tensión Polar (|V| ∠ θ°)</th>
-                  <th>Magnitud |V| (pu)</th>
-                  <th>Ángulo δ (grados)</th>
+                  <th>Barra</th>
+                  <th>Tipo</th>
+                  <th>Voltaje / Est.</th>
+                  <th>P_sch (MW)</th>
+                  <th>Q_sch (Mvar)</th>
+                  <th>Acción</th>
                 </tr>
               </thead>
-              <tbody id="tabla-voltajes-body">
-                <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin datos calculados aún.</td></tr>
-              </tbody>
+              <tbody id="tabla-gs-barras-body"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Flujos de Potencia y Pérdidas -->
+        <!-- 3. Líneas de Transmisión GS -->
         <div class="card">
           <div class="card-title">
-            <span>Flujos de Línea, Pérdidas y Corrientes de Rama</span>
-            <span class="badge">S = V · I*</span>
+            <span>3. Líneas de Transmisión</span>
+            <span class="badge" id="badge-gs-lineas">3 Líneas</span>
           </div>
-          <div class="table-container" style="max-height: 280px;">
+
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label for="gs-line-from">De Barra:</label>
+              <select id="gs-line-from" class="select-field"></select>
+            </div>
+            <div class="form-group">
+              <label for="gs-line-to">A Barra:</label>
+              <select id="gs-line-to" class="select-field"></select>
+            </div>
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: 120px 1fr;">
+            <div class="form-group">
+              <label for="gs-line-type">Ingresar como:</label>
+              <select id="gs-line-type" class="select-field">
+                <option value="Z">Impedancia Z (pu)</option>
+                <option value="Y">Admitancia y (pu)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="gs-line-val">Valor (ej. j1/30, j0.0125, 0.02+j0.04):</label>
+              <input type="text" id="gs-line-val" class="input-field" placeholder="j1/30">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <button class="btn btn-gold btn-sm" id="btn-agregar-gs-line">➕ Guardar Línea</button>
+            <button class="btn btn-outline btn-sm" id="btn-cancelar-gs-line" style="display:none;">Cancelar</button>
+          </div>
+
+          <div class="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Rama</th>
-                  <th>Corriente I_ij (pu)</th>
-                  <th>Flujo S_ij (pu / MVA)</th>
-                  <th>Flujo S_ji (pu / MVA)</th>
-                  <th>Pérdidas Totales (P_loss + j Q_loss)</th>
+                  <th>Línea</th>
+                  <th>De ↔ A</th>
+                  <th>Entrada</th>
+                  <th>Admitancia y_ij (pu)</th>
+                  <th>Acción</th>
                 </tr>
               </thead>
-              <tbody id="tabla-flujos-body">
-                <tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin flujos calculados aún.</td></tr>
-              </tbody>
+              <tbody id="tabla-gs-lineas-body"></tbody>
             </table>
           </div>
         </div>
+
+        <button class="btn btn-gold btn-block" id="btn-calcular-gs">
+          ▶ EJECUTAR FLUJO DE POTENCIA (GAUSS-SEIDEL)
+        </button>
 
       </div>
 
-      <!-- TAB 2: PROCEDIMIENTO PASO A PASO -->
-      <div id="tab-procedimiento" class="tab-content">
-        <div id="procedimiento-container" style="display: flex; flex-direction: column; gap: 14px;">
-          <div class="step-card">
-            <div class="step-header">
-              <div class="step-num">!</div>
-              <div class="step-title">Esperando Ejecución</div>
+      <!-- Panel Derecho: Resultados GS -->
+      <div class="right-panel">
+        
+        <div class="tabs-header">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="tab-res-gs">Resultados y Flujos</button>
+            <button class="tab-btn" data-tab="tab-iter-gs">Tabla de Iteraciones</button>
+            <button class="tab-btn" data-tab="tab-proc-gs">Memoria Paso a Paso</button>
+          </div>
+          <div class="tab-controls">
+            <button class="btn btn-outline btn-sm" id="btn-copiar-gs">📋 Copiar Reporte</button>
+            <button class="btn btn-outline btn-sm" id="btn-imprimir-gs">🖨️ Imprimir / PDF</button>
+          </div>
+        </div>
+
+        <!-- TAB 1 GS: RESULTADOS GENERALES -->
+        <div id="tab-res-gs" class="tab-content active">
+          <div id="status-container-gs">
+            <div class="status-banner ok" id="status-banner-gs">
+              <span>✓ Módulo Gauss-Seidel listo. Pulsa "Ejecutar Flujo de Potencia".</span>
             </div>
-            <div class="step-content">
-              Configura las ramas y fuentes de tu circuito y pulsa el botón <strong>"▶ CALCULAR MATRICES Y VOLTAJES"</strong> para desplegar la memoria detallada de cálculo matemático paso a paso.
+          </div>
+
+          <!-- Tarjetas de Balance General -->
+          <div class="matrices-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="card" style="margin-bottom:0;">
+              <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Potencia Slack (Generador 1)</span>
+              <div id="gs-slack-power-display" style="font-size:1.3rem; font-weight:800; color:var(--gold); font-family:var(--font-mono); margin-top:4px;">
+                700.00 MW + j700.00 Mvar
+              </div>
+              <span style="font-size:0.75rem; color:var(--text-muted);">S₁ = V₁ · I₁*</span>
+            </div>
+            <div class="card" style="margin-bottom:0;">
+              <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Pérdidas Totales en Transmisión</span>
+              <div id="gs-total-losses-display" style="font-size:1.3rem; font-weight:800; color:var(--info); font-family:var(--font-mono); margin-top:4px;">
+                0.00 MW + j110.00 Mvar
+              </div>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Σ Pérdidas de las 3 ramas</span>
+            </div>
+          </div>
+
+          <!-- Tabla de Estado de Barras -->
+          <div class="card">
+            <div class="card-title">
+              <span>Perfil Final de Voltajes y Potencias por Barra</span>
+              <span class="badge badge-success">Solución Convergida</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Barra</th>
+                    <th>Tipo</th>
+                    <th>Tensión Polar (|V| ∠ δ°)</th>
+                    <th>Tensión Rectangular (pu)</th>
+                    <th>P Neta (MW)</th>
+                    <th>Q Neta (Mvar)</th>
+                    <th>Generación (MW / Mvar)</th>
+                    <th>Carga (MW / Mvar)</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-gs-res-barras-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tabla de Flujos y Pérdidas de Línea -->
+          <div class="card">
+            <div class="card-title">
+              <span>Flujos de Potencia y Pérdidas de Transmisión en Líneas</span>
+              <span class="badge">S_ij = V_i · I_ij*</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Línea</th>
+                    <th>Corriente I_ij (pu)</th>
+                    <th>Flujo S_ij (MW + jMvar)</th>
+                    <th>Flujo S_ji (MW + jMvar)</th>
+                    <th>Pérdidas S_loss (MW + jMvar)</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-gs-res-flujos-body"></tbody>
+              </table>
             </div>
           </div>
         </div>
+
+        <!-- TAB 2 GS: TABLA DE ITERACIONES -->
+        <div id="tab-iter-gs" class="tab-content">
+          <div class="card">
+            <div class="card-title">
+              <span>Evolución Iterativa de Voltajes (Gauss-Seidel)</span>
+              <span class="badge" id="badge-gs-total-iter">7 Iteraciones</span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+              Actualización simultánea continua en cada iteración k. Se observa la convergencia exacta hasta error &lt; ε.
+            </p>
+            <div class="table-container" style="max-height: 480px;">
+              <table>
+                <thead>
+                  <tr id="tabla-gs-iter-headers">
+                    <th>k</th>
+                    <th>V₂^(k) Rectangular</th>
+                    <th>V₂^(k) Polar</th>
+                    <th>V₃^(k) Rectangular</th>
+                    <th>V₃^(k) Polar</th>
+                    <th>Error Máx |ΔV|</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-gs-iter-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3 GS: MEMORIA PASO A PASO -->
+        <div id="tab-proc-gs" class="tab-content">
+          <div id="procedimiento-container-gs" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+
       </div>
 
     </div>
   </main>
 
-  <!-- Toast Notification System -->
+  <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
 
   <script>
     /* ==========================================================================
-       CLASE COMPLETA DE ARITMÉTICA COMPLEJA
+       1. UTILIDADES TIPOGRÁFICAS Y SUBÍNDICES UNICODE LIMPIOS (SIN GUIONES BAJOS)
+       ========================================================================== */
+    const _SUB_MAP = {
+      '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+      '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+      '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
+      'a': 'ₐ', 'e': 'ₑ', 'i': 'ᵢ', 'j': 'ⱼ', 'k': 'ₖ', 'm': 'ₘ',
+      'n': 'ₙ', 'o': 'ₒ', 'p': 'ₚ', 'r': 'ᵣ', 's': 'ₛ', 't': 'ₜ'
+    };
+
+    function sb(val) {
+      if (val === undefined || val === null) return '';
+      return String(val).split('').map(c => _SUB_MAP[c] || c).join('');
+    }
+
+    /* ==========================================================================
+       2. ARITMÉTICA COMPLEJA PRECISA (ROBUSTA PARA FRACCIONES COMO j1/30)
        ========================================================================== */
     class Complex {
       constructor(re = 0, im = 0) {
@@ -978,7 +1354,7 @@
         return `${m.toFixed(d)} ∠ ${a.toFixed(da)}°`;
       }
 
-      /* Parser ultra flexible de cadenas complejas */
+      /* Parser con soporte completo para números reales, imaginarios y fracciones (ej. j1/30) */
       static parse(str) {
         if (!str || typeof str !== "string") return new Complex(0, 0);
         let s = str.trim().replace(/\s+/g, "");
@@ -992,9 +1368,22 @@
           return Complex.polar(r, ang);
         }
 
-        // Formato Rectangular con "j" o "i"
         s = s.replace(/i/g, "j");
-        
+
+        // Casos de fracción con j: ej. "j1/30", "1/30j", "j(1/30)", "-j1/80"
+        if (s.includes("/")) {
+          const isNegative = s.startsWith("-");
+          let clean = s.replace(/^[+-]/, "").replace(/[()]/g, "");
+          const isImag = clean.includes("j");
+          clean = clean.replace(/j/g, "");
+          const [numStr, denStr] = clean.split("/");
+          const num = parseFloat(numStr || "1");
+          const den = parseFloat(denStr || "1");
+          if (isNaN(num) || isNaN(den) || den === 0) throw new Error(`Fracción inválida: "${str}"`);
+          const val = (isNegative ? -1 : 1) * (num / den);
+          return isImag ? new Complex(0, val) : new Complex(val, 0);
+        }
+
         // Casos puros imaginarios: ej. "j0.5", "-j1", "+j.02", "j"
         if (/^[+-]?j[\d.]*$/.test(s)) {
           let numStr = s.replace("j", "");
@@ -1005,28 +1394,20 @@
           return new Complex(0, im);
         }
 
-        // Casos con 'j' al final: ej. "0.04j", "-2.75j"
         if (/^[+-]?[\d.]+j$/.test(s)) {
           const im = parseFloat(s.replace("j", ""));
           return new Complex(0, isNaN(im) ? 0 : im);
         }
 
-        // Si no tiene j, es número real puro
         if (!s.includes("j")) {
           const re = parseFloat(s);
           if (isNaN(re)) throw new Error(`Número real inválido: "${str}"`);
           return new Complex(re, 0);
         }
 
-        // Complejo con parte real e imaginaria: ej. "0.02+j0.04", "-10+j20", "1.38-2.75j"
-        // Normalizar 'j' antes o después del número
+        // Rectangular combinado: ej. "0.02+j0.04", "-10+j20", "1.38-2.75j"
         let re = 0, im = 0;
-        // Reemplazar patrones "+j12" o "-j12" por "+12j" o "-12j"
-        let norm = s.replace(/([+-])j([\d.]+)/g, "$1$2j").replace(/^j([\d.]+)/, "$1j");
-        
-        const regex = /([+-]?[\d.]+)/g;
         const matches = s.match(/[+-]?[^+-]+/g);
-
         if (matches) {
           for (let m of matches) {
             if (m.includes("j")) {
@@ -1038,29 +1419,16 @@
               re += parseFloat(m);
             }
           }
-          if (isNaN(re) || isNaN(im)) throw new Error(`Formato complejo irreconocible: "${str}"`);
+          if (isNaN(re) || isNaN(im)) throw new Error(`Formato complejo erróneo: "${str}"`);
           return new Complex(re, im);
         }
 
-        throw new Error(`Cadena compleja inválida: "${str}"`);
+        throw new Error(`Cadena no reconocida: "${str}"`);
       }
     }
 
     /* ==========================================================================
-       ESTADO GLOBAL DE LA APLICACIÓN
-       ========================================================================== */
-    const State = {
-      numNodos: 3,
-      ramas: [],    // { id, de, a, tipo, valorStr, Z, Y }
-      fuentes: [],  // { id, tipo, nodo, iStr, vMag, vAng, zStr, E, Zint, In, yg }
-      resultados: null,
-      editingRamaId: null,
-      editingFuenteId: null,
-      formatoVisual: "rect"
-    };
-
-    /* ==========================================================================
-       HELPERS DE INTERFAZ Y NOTIFICACIONES
+       3. NOTIFICACIONES TOAST DISCRETAS
        ========================================================================== */
     function showToast(msg, type = "info") {
       const container = document.getElementById("toast-container");
@@ -1072,11 +1440,70 @@
       setTimeout(() => {
         toast.style.opacity = "0";
         toast.style.transform = "translateX(100%)";
-        toast.style.transition = "all 0.3s ease";
-        setTimeout(() => toast.remove(), 300);
+        toast.style.transition = "all 0.25s ease";
+        setTimeout(() => toast.remove(), 250);
       }, 3500);
     }
 
+    /* ==========================================================================
+       4. ESTADO GLOBAL: MODO 1 (NODAL) Y MODO 2 (GAUSS-SEIDEL)
+       ========================================================================== */
+    const StateNodal = {
+      numNodos: 3,
+      ramas: [],
+      fuentes: [],
+      resultados: null,
+      editingRamaId: null,
+      editingFuenteId: null,
+      formatoVisual: "rect"
+    };
+
+    const StateGS = {
+      sbase: 100,
+      tol: 0.00001,
+      maxIter: 30,
+      alpha: 1.0,
+      buses: [], // { id, type, Vmag, Vang, Pl, Ql, Pg, Qg, V0mag, V0ang }
+      lines: [], // { id, from, to, type, valStr, Z, Y }
+      editingBusId: null,
+      editingLineId: null,
+      resultados: null
+    };
+
+    /* ==========================================================================
+       5. CONTROL DEL CONMUTADOR DE MODOS
+       ========================================================================== */
+    function switchMode(mode) {
+      const tabNodal = document.getElementById("tab-mode-nodal");
+      const tabGS = document.getElementById("tab-mode-gs");
+      const viewNodal = document.getElementById("view-mode-nodal");
+      const viewGS = document.getElementById("view-mode-gs");
+      const actNodal = document.getElementById("actions-mode-nodal");
+      const actGS = document.getElementById("actions-mode-gs");
+      const indicator = document.getElementById("mode-status-indicator");
+
+      if (mode === "nodal") {
+        tabNodal.classList.add("active");
+        tabGS.classList.remove("active");
+        viewNodal.classList.add("active");
+        viewGS.classList.remove("active");
+        actNodal.style.display = "flex";
+        actGS.style.display = "none";
+        indicator.innerText = "Módulo Nodal Activo: [I] = [Y_bus][V]";
+      } else {
+        tabGS.classList.add("active");
+        tabNodal.classList.remove("active");
+        viewGS.classList.add("active");
+        viewNodal.classList.remove("active");
+        actGS.style.display = "flex";
+        actNodal.style.display = "none";
+        indicator.innerText = "Módulo Activo: Flujo de Potencia Gauss-Seidel";
+      }
+    }
+
+    /* ==========================================================================
+       6. MÓDULO 1: ANÁLISIS NODAL LINEAL
+       ========================================================================== */
     function actualizarSelectoresNodos() {
       const deSel = document.getElementById("rama-de");
       const aSel = document.getElementById("rama-a");
@@ -1090,7 +1517,7 @@
       aSel.innerHTML = '<option value="0">0 (Tierra / Ref)</option>';
       fNodoSel.innerHTML = "";
 
-      for (let i = 1; i <= State.numNodos; i++) {
+      for (let i = 1; i <= StateNodal.numNodos; i++) {
         deSel.innerHTML += `<option value="${i}">Nodo ${i}</option>`;
         aSel.innerHTML += `<option value="${i}">Nodo ${i}</option>`;
         fNodoSel.innerHTML += `<option value="${i}">Nodo ${i}</option>`;
@@ -1100,36 +1527,33 @@
       if (currA && aSel.querySelector(`option[value="${currA}"]`)) aSel.value = currA;
       if (currFN && fNodoSel.querySelector(`option[value="${currFN}"]`)) fNodoSel.value = currFN;
 
-      document.getElementById("badge-nodos").innerText = `${State.numNodos} Nodos`;
+      document.getElementById("badge-nodos").innerText = `${StateNodal.numNodos} Nodos`;
     }
 
-    /* ==========================================================================
-       GESTIÓN DE RAMAS
-       ========================================================================== */
-    function renderRamas() {
+    function renderRamasNodal() {
       const tbody = document.getElementById("tabla-ramas-body");
-      document.getElementById("badge-ramas").innerText = `${State.ramas.length} Ramas`;
+      document.getElementById("badge-ramas").innerText = `${StateNodal.ramas.length} Ramas`;
 
-      if (State.ramas.length === 0) {
+      if (StateNodal.ramas.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin ramas registradas.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = State.ramas.map(r => `
+      tbody.innerHTML = StateNodal.ramas.map(r => `
         <tr>
           <td><span class="badge">N${r.de}</span></td>
-          <td><span class="badge">${r.a === 0 ? "0 (Tierra)" : "N" + r.a}</span></td>
-          <td>${r.tipo}</td>
+          <td><span class="badge ${r.a === 0 ? 'badge-subtle' : ''}">${r.a === 0 ? "0 (Tierra)" : "N" + r.a}</span></td>
+          <td><span class="badge badge-info">${r.tipo}</span></td>
           <td class="text-mono" style="color:var(--gold);">${r.valorStr}</td>
           <td>
-            <button class="btn btn-outline btn-sm" onclick="editarRama(${r.id})">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="eliminarRama(${r.id})">✕</button>
+            <button class="btn btn-outline btn-sm" onclick="editarRamaNodal(${r.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="eliminarRamaNodal(${r.id})">✕</button>
           </td>
         </tr>
       `).join("");
     }
 
-    function agregarRama() {
+    function agregarRamaNodal() {
       try {
         const de = parseInt(document.getElementById("rama-de").value);
         const a = parseInt(document.getElementById("rama-a").value);
@@ -1137,54 +1561,48 @@
         const valStr = document.getElementById("rama-valor").value.trim();
 
         if (de === a) {
-          showToast("El nodo de origen y destino no pueden ser iguales.", "bad");
+          showToast("El nodo origen y destino no pueden ser iguales.", "bad");
           return;
         }
         if (!valStr) {
-          showToast("Ingresa el valor complejo de la rama.", "bad");
+          showToast("Introduce el valor de la impedancia o admitancia.", "bad");
           return;
         }
 
         const comp = Complex.parse(valStr);
         if (comp.mag() < 1e-12) {
-          showToast("La impedancia o admitancia no puede ser 0.", "bad");
+          showToast("La impedancia/admitancia no puede ser cero.", "bad");
           return;
         }
 
-        let Z, Y;
-        if (tipo === "Z") {
-          Z = comp;
-          Y = comp.inv();
-        } else {
-          Y = comp;
-          Z = comp.inv();
-        }
+        const Z = tipo === "Z" ? comp : comp.inv();
+        const Y = tipo === "Y" ? comp : comp.inv();
 
-        if (State.editingRamaId !== null) {
-          const idx = State.ramas.findIndex(r => r.id === State.editingRamaId);
+        if (StateNodal.editingRamaId !== null) {
+          const idx = StateNodal.ramas.findIndex(r => r.id === StateNodal.editingRamaId);
           if (idx !== -1) {
-            State.ramas[idx] = { id: State.editingRamaId, de, a, tipo, valorStr: valStr, Z, Y };
-            showToast("Rama actualizada correctamente.", "ok");
+            StateNodal.ramas[idx] = { id: StateNodal.editingRamaId, de, a, tipo, valorStr: valStr, Z, Y };
+            showToast("Rama actualizada.", "ok");
           }
-          State.editingRamaId = null;
+          StateNodal.editingRamaId = null;
           document.getElementById("btn-cancelar-edit-rama").style.display = "none";
-          document.getElementById("btn-agregar-rama").innerText = "➕ Agregar Rama";
+          document.getElementById("btn-agregar-rama").innerText = "➕ Agregar / Guardar Rama";
         } else {
-          State.ramas.push({ id: Date.now() + Math.random(), de, a, tipo, valorStr: valStr, Z, Y });
-          showToast("Rama agregada con éxito.", "ok");
+          StateNodal.ramas.push({ id: Date.now() + Math.random(), de, a, tipo, valorStr: valStr, Z, Y });
+          showToast("Rama agregada.", "ok");
         }
 
         document.getElementById("rama-valor").value = "";
-        renderRamas();
+        renderRamasNodal();
       } catch (err) {
-        showToast("Error en valor de rama: " + err.message, "bad");
+        showToast("Error en valor: " + err.message, "bad");
       }
     }
 
-    function editarRama(id) {
-      const r = State.ramas.find(x => x.id === id);
+    function editarRamaNodal(id) {
+      const r = StateNodal.ramas.find(x => x.id === id);
       if (!r) return;
-      State.editingRamaId = id;
+      StateNodal.editingRamaId = id;
       document.getElementById("rama-de").value = r.de;
       document.getElementById("rama-a").value = r.a;
       document.getElementById("rama-tipo").value = r.tipo;
@@ -1193,122 +1611,95 @@
       document.getElementById("btn-cancelar-edit-rama").style.display = "inline-flex";
     }
 
-    function eliminarRama(id) {
-      State.ramas = State.ramas.filter(r => r.id !== id);
-      if (State.editingRamaId === id) {
-        State.editingRamaId = null;
+    function eliminarRamaNodal(id) {
+      StateNodal.ramas = StateNodal.ramas.filter(r => r.id !== id);
+      if (StateNodal.editingRamaId === id) {
+        StateNodal.editingRamaId = null;
         document.getElementById("btn-cancelar-edit-rama").style.display = "none";
-        document.getElementById("btn-agregar-rama").innerText = "➕ Agregar Rama";
+        document.getElementById("btn-agregar-rama").innerText = "➕ Agregar / Guardar Rama";
       }
-      renderRamas();
+      renderRamasNodal();
       showToast("Rama eliminada.", "info");
     }
 
-    /* ==========================================================================
-       GESTIÓN DE FUENTES (Voltaje Thévenin y Corriente Directa)
-       ========================================================================== */
-    function renderFuentes() {
+    function renderFuentesNodal() {
       const tbody = document.getElementById("tabla-fuentes-body");
-      document.getElementById("badge-fuentes").innerText = `${State.fuentes.length} Fuentes`;
+      document.getElementById("badge-fuentes").innerText = `${StateNodal.fuentes.length} Fuentes`;
 
-      if (State.fuentes.length === 0) {
+      if (StateNodal.fuentes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin fuentes registradas.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = State.fuentes.map(f => {
-        let paramTxt = "";
-        let nortonTxt = "";
-        if (f.tipo === "I") {
-          paramTxt = `I = ${f.iStr}`;
-          nortonTxt = `${f.In.formatPolar(3)}`;
-        } else {
-          paramTxt = `E = ${f.vMag}∠${f.vAng}°, Zint = ${f.zStr}`;
-          nortonTxt = `In = ${f.In.formatPolar(3)}`;
-        }
+      tbody.innerHTML = StateNodal.fuentes.map(f => {
+        const paramTxt = f.tipo === "I" ? `I = ${f.iStr}` : `E = ${f.vMag}∠${f.vAng}°, Zint = ${f.zStr}`;
+        const nortonTxt = `${f.In.formatPolar(3)}`;
 
         return `
           <tr>
-            <td><span class="badge">${f.tipo === "I" ? "Corriente [I]" : "Voltaje (Thév)"}</span></td>
+            <td><span class="badge ${f.tipo === 'I' ? 'badge-info' : 'badge-success'}">${f.tipo === 'I' ? 'Corriente [I]' : 'Voltaje (Thév)'}</span></td>
             <td><span class="badge">N${f.nodo}</span></td>
-            <td class="text-mono" style="font-size:0.75rem;">${paramTxt}</td>
+            <td class="text-mono">${paramTxt}</td>
             <td class="text-mono" style="color:var(--gold);">${nortonTxt}</td>
             <td>
-              <button class="btn btn-outline btn-sm" onclick="editarFuente(${f.id})">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="eliminarFuente(${f.id})">✕</button>
+              <button class="btn btn-outline btn-sm" onclick="editarFuenteNodal(${f.id})">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarFuenteNodal(${f.id})">✕</button>
             </td>
           </tr>
         `;
       }).join("");
     }
 
-    function agregarFuente() {
+    function agregarFuenteNodal() {
       try {
         const tipo = document.getElementById("fuente-tipo").value;
         const nodo = parseInt(document.getElementById("fuente-nodo").value);
-
         let In, yg, iStr = "", vMag = 0, vAng = 0, zStr = "", E = null, Zint = null;
 
         if (tipo === "I") {
           iStr = document.getElementById("fuente-i-valor").value.trim();
-          if (!iStr) {
-            showToast("Introduce el valor de la corriente inyectada.", "bad");
-            return;
-          }
+          if (!iStr) throw new Error("Ingresa la corriente inyectada");
           In = Complex.parse(iStr);
-          yg = new Complex(0, 0); // No agrega admitancia interna adicional
+          yg = new Complex(0, 0);
         } else {
-          vMag = parseFloat(document.getElementById("fuente-v-mag").value);
+          vMag = parseFloat(document.getElementById("fuente-v-mag").value) || 0;
           vAng = parseFloat(document.getElementById("fuente-v-ang").value) || 0;
           zStr = document.getElementById("fuente-v-z").value.trim();
-
-          if (isNaN(vMag)) {
-            showToast("Introduce una magnitud de tensión válida.", "bad");
-            return;
-          }
-          if (!zStr) {
-            showToast("Introduce la impedancia interna Z_int.", "bad");
-            return;
-          }
-
+          if (!zStr) throw new Error("Ingresa Z_int del generador");
           E = Complex.polar(vMag, vAng);
           Zint = Complex.parse(zStr);
-          if (Zint.mag() < 1e-12) {
-            showToast("La impedancia interna de la fuente no puede ser 0.", "bad");
-            return;
-          }
-
+          if (Zint.mag() < 1e-12) throw new Error("Z_int no puede ser cero");
           yg = Zint.inv();
           In = E.div(Zint);
         }
 
-        if (State.editingFuenteId !== null) {
-          const idx = State.fuentes.findIndex(f => f.id === State.editingFuenteId);
+        if (StateNodal.editingFuenteId !== null) {
+          const idx = StateNodal.fuentes.findIndex(f => f.id === StateNodal.editingFuenteId);
           if (idx !== -1) {
-            State.fuentes[idx] = { id: State.editingFuenteId, tipo, nodo, iStr, vMag, vAng, zStr, E, Zint, In, yg };
+            StateNodal.fuentes[idx] = { id: StateNodal.editingFuenteId, tipo, nodo, iStr, vMag, vAng, zStr, E, Zint, In, yg };
             showToast("Fuente actualizada.", "ok");
           }
-          State.editingFuenteId = null;
+          StateNodal.editingFuenteId = null;
           document.getElementById("btn-cancelar-edit-fuente").style.display = "none";
-          document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar Fuente";
+          document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar / Guardar Fuente";
         } else {
-          State.fuentes.push({ id: Date.now() + Math.random(), tipo, nodo, iStr, vMag, vAng, zStr, E, Zint, In, yg });
-          showToast("Fuente agregada con éxito.", "ok");
+          StateNodal.fuentes.push({ id: Date.now() + Math.random(), tipo, nodo, iStr, vMag, vAng, zStr, E, Zint, In, yg });
+          showToast("Fuente registrada.", "ok");
         }
 
         document.getElementById("fuente-i-valor").value = "";
-        renderFuentes();
+        renderFuentesNodal();
       } catch (err) {
         showToast("Error en fuente: " + err.message, "bad");
       }
     }
 
-    function editarFuente(id) {
-      const f = State.fuentes.find(x => x.id === id);
+    function editarFuenteNodal(id) {
+      const f = StateNodal.fuentes.find(x => x.id === id);
       if (!f) return;
-      State.editingFuenteId = id;
+      StateNodal.editingFuenteId = id;
       document.getElementById("fuente-tipo").value = f.tipo;
-      toggleCamposFuente();
+      toggleCamposFuenteNodal();
       document.getElementById("fuente-nodo").value = f.nodo;
 
       if (f.tipo === "I") {
@@ -1323,21 +1714,21 @@
       document.getElementById("btn-cancelar-edit-fuente").style.display = "inline-flex";
     }
 
-    function eliminarFuente(id) {
-      State.fuentes = State.fuentes.filter(f => f.id !== id);
-      if (State.editingFuenteId === id) {
-        State.editingFuenteId = null;
+    function eliminarFuenteNodal(id) {
+      StateNodal.fuentes = StateNodal.fuentes.filter(f => f.id !== id);
+      if (StateNodal.editingFuenteId === id) {
+        StateNodal.editingFuenteId = null;
         document.getElementById("btn-cancelar-edit-fuente").style.display = "none";
-        document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar Fuente";
+        document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar / Guardar Fuente";
       }
-      renderFuentes();
+      renderFuentesNodal();
       showToast("Fuente eliminada.", "info");
     }
 
-    function toggleCamposFuente() {
+    function toggleCamposFuenteNodal() {
       const tipo = document.getElementById("fuente-tipo").value;
       if (tipo === "I") {
-        document.getElementById("campos-fuente-i").style.display = "flex";
+        document.getElementById("campos-fuente-i").style.display = "block";
         document.getElementById("campos-fuente-v").style.display = "none";
       } else {
         document.getElementById("campos-fuente-i").style.display = "none";
@@ -1345,58 +1736,54 @@
       }
     }
 
-    /* ==========================================================================
-       MOTOR MATEMÁTICO: YBUS, GAUSS-JORDAN (ZBUS), VOLTAJES Y FLUJOS
-       ========================================================================== */
-    function resolverSistema() {
-      if (State.ramas.length === 0 && State.fuentes.length === 0) {
-        showToast("Agrega al menos una rama o fuente para resolver.", "bad");
+    function resolverSistemaNodal() {
+      if (StateNodal.ramas.length === 0 && StateNodal.fuentes.length === 0) {
+        showToast("Agrega al menos una rama o fuente para calcular.", "bad");
         return;
       }
 
-      const N = State.numNodos;
-      const procedimiento = [];
+      const N = StateNodal.numNodos;
+      const proc = [];
 
       try {
-        // Paso 1: Topología
-        procedimiento.push({
+        proc.push({
           num: 1,
-          title: "Identificación de Nodos y Topología",
-          desc: `La red contiene <strong>N = ${N}</strong> nodos activos (el nodo 0 actúa como la referencia de potencial / tierra). Por consiguiente, las matrices de admitancia e impedancia nodal tendrán dimensiones de <strong>${N} × ${N}</strong>.`
+          title: "Identificación de Nodos y Dimensiones de Red",
+          desc: `El sistema consta de <strong>N = ${N} nodos activos</strong> y la referencia común en tierra (Nodo 0). Las matrices [Y${sb('bus')}] y [Z${sb('bus')}] tienen dimensión de <strong>${N} × ${N}</strong>.`
         });
 
-        // Paso 2: Conversiones Norton y Vector de Corrientes
+        // Inyecciones Norton y corrientes
         const Ibus = Array.from({ length: N }, () => new Complex(0, 0));
         const Yg_diag = Array.from({ length: N }, () => new Complex(0, 0));
         const detallesFuentes = [];
 
-        State.fuentes.forEach(f => {
+        StateNodal.fuentes.forEach(f => {
           const idx = f.nodo - 1;
           Ibus[idx] = Ibus[idx].add(f.In);
           Yg_diag[idx] = Yg_diag[idx].add(f.yg);
 
           if (f.tipo === "V") {
-            detallesFuentes.push(`• Nodo ${f.nodo} (Generador Thévenin): E = ${f.vMag}∠${f.vAng}° pu, Z_int = ${f.Zint.formatRect(4)} pu\n  yg = 1 / Z_int = ${f.yg.formatRect(4)} S\n  In = E / Z_int = ${f.In.formatRect(4)} pu = ${f.In.formatPolar(4)}`);
+            detallesFuentes.push(`• Nodo ${f.nodo} (Generador Thévenin):\n  E${sb(f.nodo)} = ${f.vMag}∠${f.vAng}° pu,  Z${sb('int')} = ${f.Zint.formatRect(4)} pu\n  y${sb('g' + f.nodo)} = 1 / Z${sb('int')} = ${f.yg.formatRect(4)} S\n  I${sb('n' + f.nodo)} = E / Z${sb('int')} = ${f.In.formatRect(4)} pu = ${f.In.formatPolar(4)}`);
           } else {
-            detallesFuentes.push(`• Nodo ${f.nodo} (Inyección de Corriente Directa):\n  In = ${f.In.formatRect(4)} pu = ${f.In.formatPolar(4)}`);
+            detallesFuentes.push(`• Nodo ${f.nodo} (Inyección de Corriente Directa):\n  I${sb(f.nodo)} = ${f.In.formatRect(4)} pu = ${f.In.formatPolar(4)}`);
           }
         });
 
-        procedimiento.push({
+        proc.push({
           num: 2,
           title: "Inyecciones de Corriente y Conversión Thévenin-Norton",
-          desc: "Cada generador de voltaje en serie con su impedancia se transforma a su equivalente Norton en paralelo. Las fuentes de corriente directa se suman directamente al vector [I]:",
-          math: detallesFuentes.length > 0 ? detallesFuentes.join("\n\n") : "No hay fuentes conectadas en el sistema (I_bus = [0])."
+          desc: "Conversión a fuente de corriente en paralelo con admitancia a tierra. Se construye el vector [I]:",
+          math: detallesFuentes.length > 0 ? detallesFuentes.join("\n\n") : "Vector de corrientes nulo [I] = [0]."
         });
 
-        // Paso 3: Admitancias de Rama
+        // Admitancias de rama
         const Ybus = Array.from({ length: N }, () => Array.from({ length: N }, () => new Complex(0, 0)));
         const diag_expr = Array.from({ length: N }, () => []);
-        const mut_expr = {};
         const detallesRamas = [];
 
-        State.ramas.forEach(r => {
-          detallesRamas.push(`• Rama (${r.de} → ${r.a}): Z = ${r.Z.formatRect(4)} pu  ==>  y = 1/Z = ${r.Y.formatRect(4)} S`);
+        StateNodal.ramas.forEach(r => {
+          const subPair = r.a === 0 ? `${r.de}0` : `${r.de}${r.a}`;
+          detallesRamas.push(`• Rama (${r.de} ↔ ${r.a}): Z${sb(subPair)} = ${r.Z.formatRect(4)} pu  ==>  y${sb(subPair)} = 1/Z = ${r.Y.formatRect(4)} S`);
 
           if (r.de > 0 && r.a > 0) {
             const i = r.de - 1;
@@ -1405,54 +1792,48 @@
             Ybus[j][j] = Ybus[j][j].add(r.Y);
             Ybus[i][j] = Ybus[i][j].sub(r.Y);
             Ybus[j][i] = Ybus[j][i].sub(r.Y);
-
-            diag_expr[i].push(`y_${r.de}_${r.a}`);
-            diag_expr[j].push(`y_${r.de}_${r.a}`);
-            const key = `${Math.min(i, j)}_${Math.max(i, j)}`;
-            mut_expr[key] = `−(y_${r.de}_${r.a})`;
+            diag_expr[i].push(`y${sb(subPair)}`);
+            diag_expr[j].push(`y${sb(subPair)}`);
           } else {
-            // Conexión a tierra
             const nodoActivo = r.de > 0 ? r.de : r.a;
             const i = nodoActivo - 1;
             Ybus[i][i] = Ybus[i][i].add(r.Y);
-            diag_expr[i].push(`y_${nodoActivo}0`);
+            diag_expr[i].push(`y${sb(nodoActivo + '0')}`);
           }
         });
 
-        procedimiento.push({
+        proc.push({
           num: 3,
-          title: "Cálculo de Admitancias Primitivas de Rama",
-          desc: "Cada impedancia física se convierte en admitancia mediante el inverso complejo y = 1 / Z:",
+          title: "Admitancias Primitivas de Rama (y = 1 / Z)",
+          desc: "Cada elemento pasivo se convierte en admitancia compleja mediante el inverso:",
           math: detallesRamas.join("\n")
         });
 
-        // Sumar admitancia de generadores a la diagonal
         for (let i = 0; i < N; i++) {
           if (Yg_diag[i].mag() > 1e-12) {
             Ybus[i][i] = Ybus[i][i].add(Yg_diag[i]);
-            diag_expr[i].push(`yg_${i + 1}`);
+            diag_expr[i].push(`y${sb('g' + (i + 1))}`);
           }
         }
 
-        // Paso 4: Ensamblado Ybus
         const exprYbus = [];
         for (let i = 0; i < N; i++) {
-          exprYbus.push(`Y_${i+1}_${i+1} = [${diag_expr[i].join(" + ") || "0"}] = ${Ybus[i][i].formatRect(4)} S`);
+          exprYbus.push(`Y${sb(String(i + 1) + String(i + 1))} = [${diag_expr[i].join(" + ") || "0"}] = ${Ybus[i][i].formatRect(4)} S`);
         }
         for (let i = 0; i < N; i++) {
           for (let j = i + 1; j < N; j++) {
-            exprYbus.push(`Y_${i+1}_${j+1} = Y_${j+1}_${i+1} = ${Ybus[i][j].formatRect(4)} S`);
+            exprYbus.push(`Y${sb(String(i + 1) + String(j + 1))} = Y${sb(String(j + 1) + String(i + 1))} = ${Ybus[i][j].formatRect(4)} S`);
           }
         }
 
-        procedimiento.push({
+        proc.push({
           num: 4,
-          title: "Ensamblado Sistemático de la Matriz Ybus",
-          desc: "Reglas de ensamblado: Diagonales Y_ii = suma de todas las admitancias incidentes al nodo i; Fuera de diagonal Y_ij = negativo de la admitancia directa entre i y j:",
+          title: "Ensamblado Sistemático de la Matriz Y_bus",
+          desc: "Elementos diagonales Yᵢᵢ = suma de admitancias conectadas al nodo i; Fuera de diagonal Yᵢⱼ = −(admitancia directa entre i y j):",
           math: exprYbus.join("\n")
         });
 
-        // Paso 5: Inversión de Matriz por Gauss-Jordan con Pivoteo Parcial
+        // Inversión Gauss-Jordan con pivoteo parcial
         const M = Array.from({ length: N }, (row, i) => [
           ...Ybus[i].map(c => new Complex(c.re, c.im)),
           ...Array.from({ length: N }, (_, j) => new Complex(i === j ? 1 : 0, 0))
@@ -1461,7 +1842,6 @@
         const pasosGJ = [];
 
         for (let i = 0; i < N; i++) {
-          // Pivoteo parcial por magnitud máxima
           let maxRow = i;
           let maxVal = M[i][i].mag();
           for (let k = i + 1; k < N; k++) {
@@ -1480,11 +1860,11 @@
             const temp = M[i];
             M[i] = M[maxRow];
             M[maxRow] = temp;
-            pasosGJ.push(`• Intercambio de fila ${i + 1} con fila ${maxRow + 1} por pivoteo parcial.`);
+            pasosGJ.push(`• Fila ${i + 1} ↔ Fila ${maxRow + 1} (pivoteo parcial por magnitud máxima).`);
           }
 
           const pivot = M[i][i];
-          pasosGJ.push(`• Paso de pivote ${i + 1}: se normaliza fila ${i + 1} dividiendo entre pivote = ${pivot.formatRect(4)}`);
+          pasosGJ.push(`• Normalización Fila ${i + 1} dividiendo entre pivote = ${pivot.formatRect(4)}`);
 
           for (let col = 0; col < 2 * N; col++) {
             M[i][col] = M[i][col].div(pivot);
@@ -1504,14 +1884,14 @@
 
         const Zbus = Array.from({ length: N }, (_, i) => M[i].slice(N));
 
-        procedimiento.push({
+        proc.push({
           num: 5,
-          title: "Inversión Matricial por Eliminación de Gauss-Jordan (Zbus = Ybus⁻¹)",
-          desc: "Se construye la matriz aumentada [Ybus | I] y se aplican operaciones elementales de fila hasta obtener [I | Zbus]:",
+          title: "Inversión Matricial por Eliminación Gauss-Jordan (Z_bus = Y_bus⁻¹)",
+          desc: "Transformación de la matriz aumentada [Y_bus | I] a la forma escalonada reducida [I | Z_bus]:",
           math: pasosGJ.join("\n")
         });
 
-        // Paso 6: Voltajes Nodales [V] = [Zbus] * [I]
+        // Voltajes [V] = [Zbus] * [Ibus]
         const V = Array.from({ length: N }, () => new Complex(0, 0));
         const calcVoltajes = [];
 
@@ -1521,20 +1901,20 @@
           for (let j = 0; j < N; j++) {
             const term = Zbus[i][j].mul(Ibus[j]);
             suma = suma.add(term);
-            terminos.push(`Z_${i+1}_${j+1}·I_${j+1}`);
+            terminos.push(`Z${sb(String(i + 1) + String(j + 1))}·I${sb(j + 1)}`);
           }
           V[i] = suma;
-          calcVoltajes.push(`V_${i+1} = ${terminos.join(" + ")}\n     = ${V[i].formatRect(5)} pu  =  ${V[i].formatPolar(5)} pu`);
+          calcVoltajes.push(`V${sb(i + 1)} = ${terminos.join(" + ")}\n   = ${V[i].formatRect(5)} pu  =  ${V[i].formatPolar(5, 4)} pu`);
         }
 
-        procedimiento.push({
+        proc.push({
           num: 6,
           title: "Solución de Voltajes Nodales Fasoriales",
-          desc: "Multiplicación matricial [V] = [Zbus] · [Ibus]:",
+          desc: "Multiplicación fasorial del vector de impedancias por las inyecciones [V] = [Z_bus] · [I]:",
           math: calcVoltajes.join("\n\n")
         });
 
-        // Paso 7: Comprobación de Residuo y Flujos
+        // Comprobación y flujos
         let maxResiduo = 0;
         for (let i = 0; i < N; i++) {
           let I_calc = new Complex(0, 0);
@@ -1546,7 +1926,7 @@
         }
 
         const flujos = [];
-        State.ramas.forEach(r => {
+        StateNodal.ramas.forEach(r => {
           const Vi = r.de > 0 ? V[r.de - 1] : new Complex(0, 0);
           const Vj = r.a > 0 ? V[r.a - 1] : new Complex(0, 0);
 
@@ -1557,73 +1937,48 @@
           const Sji = Vj.mul(Iji.conj());
           const Ploss = Sij.add(Sji);
 
-          flujos.push({
-            de: r.de,
-            a: r.a,
-            Iij,
-            Iji,
-            Sij,
-            Sji,
-            Ploss
-          });
+          flujos.push({ de: r.de, a: r.a, Iij, Iji, Sij, Sji, Ploss });
         });
 
-        procedimiento.push({
+        proc.push({
           num: 7,
-          title: "Comprobación del Residuo de Corrientes y Balance de Potencias",
-          desc: `La verificación numérica de la ley de Ohm nodal arroja un residuo máximo de <strong>|Y·V − I| = ${maxResiduo.toExponential(3)}</strong>, confirmando la exactitud analítica de la solución.`,
-          math: flujos.map(f => `• Rama (${f.de} → ${f.a}):\n  I_${f.de}_${f.a} = ${f.Iij.formatPolar(4)} pu\n  S_${f.de}_${f.a} = ${f.Sij.formatRect(4)} pu\n  S_${f.a}_${f.de} = ${f.Sji.formatRect(4)} pu\n  Pérdidas = ${f.Ploss.formatRect(4)} pu`).join("\n\n")
+          title: "Comprobación del Residuo y Flujos de Línea (S = V · I*)",
+          desc: `El residuo máximo |Y·V − I| = ${maxResiduo.toExponential(3)} comprueba la exactitud del sistema nodal:`,
+          math: flujos.map(f => `• Rama (${f.de} ↔ ${f.a}):\n  I${sb(String(f.de) + String(f.a))} = ${f.Iij.formatPolar(4)} pu\n  S${sb(String(f.de) + String(f.a))} = ${f.Sij.formatRect(4)} pu\n  S${sb(String(f.a) + String(f.de))} = ${f.Sji.formatRect(4)} pu\n  Pérdidas = ${f.Ploss.formatRect(4)} pu`).join("\n\n")
         });
 
-        State.resultados = {
-          N,
-          Ybus,
-          Zbus,
-          Ibus,
-          V,
-          maxResiduo,
-          flujos,
-          procedimiento
-        };
-
-        renderResultados();
-        showToast("¡Sistema resuelto exitosamente!", "ok");
+        StateNodal.resultados = { N, Ybus, Zbus, Ibus, V, maxResiduo, flujos, proc };
+        renderResultadosNodal();
+        showToast("Análisis nodal resuelto con exactitud.", "ok");
 
       } catch (err) {
-        showToast("Error al resolver sistema: " + err.message, "bad");
-        const sb = document.getElementById("status-banner");
+        showToast("Error en solución nodal: " + err.message, "bad");
+        const sb = document.getElementById("status-banner-nodal");
         sb.className = "status-banner bad";
         sb.innerHTML = `<span>⚠ Error en el cálculo: ${err.message}</span>`;
       }
     }
 
-    /* ==========================================================================
-       RENDERIZADO DE RESULTADOS EN PANTALLA
-       ========================================================================== */
-    function renderResultados() {
-      if (!State.resultados) return;
-      const { N, Ybus, Zbus, V, maxResiduo, flujos, procedimiento } = State.resultados;
-      const fmt = State.formatoVisual;
+    function renderResultadosNodal() {
+      if (!StateNodal.resultados) return;
+      const { N, Ybus, Zbus, V, maxResiduo, flujos, proc } = StateNodal.resultados;
+      const fmt = StateNodal.formatoVisual;
 
-      // Status Banner
-      const sb = document.getElementById("status-banner");
+      const sbBanner = document.getElementById("status-banner-nodal");
       const ok = maxResiduo < 1e-6;
-      sb.className = `status-banner ${ok ? "ok" : "bad"}`;
-      sb.innerHTML = `
+      sbBanner.className = `status-banner ${ok ? "ok" : "bad"}`;
+      sbBanner.innerHTML = `
         <span>${ok ? "✓" : "⚠"} Sistema calculado correctamente</span>
-        <span style="font-family:var(--font-mono); font-size:0.8rem;">Residuo máx |Y·V − I| = ${maxResiduo.toExponential(2)}</span>
+        <span class="text-mono" style="font-size:0.78rem;">Residuo máx |Y·V − I| = ${maxResiduo.toExponential(2)}</span>
       `;
 
-      // Render Matrix Table Helper
-      function buildMatrixHTML(M, labelPrefix = "N") {
+      function buildMatrixHTML(M, prefix = "N") {
         let html = '<table class="matrix-table"><thead><tr><th></th>';
-        for (let j = 1; j <= N; j++) {
-          html += `<th>${labelPrefix}${j}</th>`;
-        }
+        for (let j = 1; j <= N; j++) html += `<th>${prefix}${sb(j)}</th>`;
         html += '</tr></thead><tbody>';
 
         for (let i = 0; i < N; i++) {
-          html += `<tr><th>${labelPrefix}${i + 1}</th>`;
+          html += `<tr><th>${prefix}${sb(i + 1)}</th>`;
           for (let j = 0; j < N; j++) {
             const isDiag = i === j;
             const valStr = fmt === "polar" ? M[i][j].formatPolar(3, 1) : M[i][j].formatRect(3);
@@ -1635,14 +1990,13 @@
         return html;
       }
 
-      document.getElementById("ybus-container").innerHTML = buildMatrixHTML(Ybus);
-      document.getElementById("zbus-container").innerHTML = buildMatrixHTML(Zbus);
+      document.getElementById("ybus-container").innerHTML = buildMatrixHTML(Ybus, "Y");
+      document.getElementById("zbus-container").innerHTML = buildMatrixHTML(Zbus, "Z");
 
-      // Tabla de Voltajes
       const tvBody = document.getElementById("tabla-voltajes-body");
       tvBody.innerHTML = V.map((v, i) => `
         <tr>
-          <td><span class="badge" style="font-size:0.85rem;">Nodo ${i + 1}</span></td>
+          <td><span class="badge" style="font-size:0.8rem;">V${sb(i + 1)}</span></td>
           <td class="text-mono" style="color:var(--gold); font-weight:700;">${v.formatRect(5)}</td>
           <td class="text-mono" style="color:var(--success); font-weight:700;">${v.formatPolar(5, 4)}</td>
           <td class="text-mono">${v.mag().toFixed(5)}</td>
@@ -1650,7 +2004,6 @@
         </tr>
       `).join("");
 
-      // Tabla de Flujos
       const tfBody = document.getElementById("tabla-flujos-body");
       tfBody.innerHTML = flujos.map(f => `
         <tr>
@@ -1662,29 +2015,25 @@
         </tr>
       `).join("");
 
-      // Render Procedimiento
-      const procContainer = document.getElementById("procedimiento-container");
-      procContainer.innerHTML = procedimiento.map(step => `
+      const procContainer = document.getElementById("procedimiento-container-nodal");
+      procContainer.innerHTML = proc.map(p => `
         <div class="step-card">
           <div class="step-header">
-            <div class="step-num">${step.num}</div>
-            <div class="step-title">${step.title}</div>
+            <div class="step-num">${p.num}</div>
+            <div class="step-title">${p.title}</div>
           </div>
-          <div class="step-content">${step.desc}</div>
-          ${step.math ? `<div class="step-math">${step.math}</div>` : ""}
+          <div class="step-content">${p.desc}</div>
+          ${p.math ? `<div class="step-math">${p.math}</div>` : ""}
         </div>
       `).join("");
     }
 
-    /* ==========================================================================
-       EJEMPLOS PRECARGADOS (Figura 2 y Pizarrón)
-       ========================================================================== */
     function cargarEjemploFig2() {
-      State.numNodos = 3;
+      StateNodal.numNodos = 3;
       document.getElementById("num-nodos").value = 3;
       actualizarSelectoresNodos();
 
-      State.ramas = [
+      StateNodal.ramas = [
         { id: 1, de: 1, a: 2, tipo: "Z", valorStr: "0.02+j0.04", Z: new Complex(0.02, 0.04), Y: new Complex(0.02, 0.04).inv() },
         { id: 2, de: 1, a: 3, tipo: "Z", valorStr: "0.01+j0.03", Z: new Complex(0.01, 0.03), Y: new Complex(0.01, 0.03).inv() },
         { id: 3, de: 2, a: 3, tipo: "Z", valorStr: "0.0125+j0.025", Z: new Complex(0.0125, 0.025), Y: new Complex(0.0125, 0.025).inv() },
@@ -1693,23 +2042,23 @@
         { id: 6, de: 2, a: 0, tipo: "Z", valorStr: "j1.0", Z: new Complex(0, 1.0), Y: new Complex(0, 1.0).inv() }
       ];
 
-      State.fuentes = [
+      StateNodal.fuentes = [
         { id: 101, tipo: "I", nodo: 1, iStr: "1.38-j2.75", vMag: 0, vAng: 0, zStr: "", E: null, Zint: null, In: new Complex(1.38, -2.75), yg: new Complex(0, 0) },
         { id: 102, tipo: "I", nodo: 2, iStr: "0.69-j1.36", vMag: 0, vAng: 0, zStr: "", E: null, Zint: null, In: new Complex(0.69, -1.36), yg: new Complex(0, 0) }
       ];
 
-      renderRamas();
-      renderFuentes();
-      resolverSistema();
-      showToast("Ejemplo Examen (Fig. 2) cargado y calculado.", "ok");
+      renderRamasNodal();
+      renderFuentesNodal();
+      resolverSistemaNodal();
+      showToast("Ejemplo Actividad (Fig. 2) cargado y calculado.", "ok");
     }
 
     function cargarEjemploPizarron() {
-      State.numNodos = 3;
+      StateNodal.numNodos = 3;
       document.getElementById("num-nodos").value = 3;
       actualizarSelectoresNodos();
 
-      State.ramas = [
+      StateNodal.ramas = [
         { id: 1, de: 1, a: 2, tipo: "Z", valorStr: "j0.4", Z: new Complex(0, 0.4), Y: new Complex(0, 0.4).inv() },
         { id: 2, de: 1, a: 3, tipo: "Z", valorStr: "j0.2", Z: new Complex(0, 0.2), Y: new Complex(0, 0.2).inv() },
         { id: 3, de: 2, a: 3, tipo: "Z", valorStr: "j0.2", Z: new Complex(0, 0.2), Y: new Complex(0, 0.2).inv() },
@@ -1721,203 +2070,822 @@
       const E2 = Complex.polar(0.8, 20.0);
       const Zg2 = new Complex(0, 0.8);
 
-      State.fuentes = [
+      StateNodal.fuentes = [
         { id: 201, tipo: "V", nodo: 1, iStr: "", vMag: 1.0, vAng: 0.0, zStr: "j1.0", E: E1, Zint: Zg1, In: E1.div(Zg1), yg: Zg1.inv() },
         { id: 202, tipo: "V", nodo: 2, iStr: "", vMag: 0.8, vAng: 20.0, zStr: "j0.8", E: E2, Zint: Zg2, In: E2.div(Zg2), yg: Zg2.inv() }
       ];
 
-      renderRamas();
-      renderFuentes();
-      resolverSistema();
-      showToast("Ejemplo Pizarrón (Thévenin) cargado y calculado.", "ok");
+      renderRamasNodal();
+      renderFuentesNodal();
+      resolverSistemaNodal();
+      showToast("Ejemplo Pizarrón cargado.", "ok");
     }
 
-    function limpiarTodo() {
-      State.ramas = [];
-      State.fuentes = [];
-      State.resultados = null;
-      State.editingRamaId = null;
-      State.editingFuenteId = null;
-
-      document.getElementById("btn-cancelar-edit-rama").style.display = "none";
-      document.getElementById("btn-cancelar-edit-fuente").style.display = "none";
-      document.getElementById("btn-agregar-rama").innerText = "➕ Agregar Rama";
-      document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar Fuente";
-
-      renderRamas();
-      renderFuentes();
-
-      document.getElementById("ybus-container").innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">Presiona "Calcular" para ver la matriz Ybus.</p>';
-      document.getElementById("zbus-container").innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">Presiona "Calcular" para ver la matriz Zbus.</p>';
-      document.getElementById("tabla-voltajes-body").innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin datos calculados aún.</td></tr>';
-      document.getElementById("tabla-flujos-body").innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin flujos calculados aún.</td></tr>';
-      document.getElementById("procedimiento-container").innerHTML = `
-        <div class="step-card">
-          <div class="step-header">
-            <div class="step-num">!</div>
-            <div class="step-title">Esperando Ejecución</div>
-          </div>
-          <div class="step-content">Datos reiniciados. Agrega ramas y fuentes para iniciar.</div>
-        </div>
-      `;
-
-      const sb = document.getElementById("status-banner");
-      sb.className = "status-banner ok";
-      sb.innerHTML = "<span>✓ Sistema en blanco. Listo para una nueva red.</span>";
-
-      showToast("Sistema reiniciado por completo.", "info");
+    function limpiarNodal() {
+      StateNodal.ramas = [];
+      StateNodal.fuentes = [];
+      StateNodal.resultados = null;
+      renderRamasNodal();
+      renderFuentesNodal();
+      document.getElementById("ybus-container").innerHTML = '<p style="color:var(--text-muted); font-size:0.83rem;">Presiona "Calcular".</p>';
+      document.getElementById("zbus-container").innerHTML = '<p style="color:var(--text-muted); font-size:0.83rem;">Presiona "Calcular".</p>';
+      document.getElementById("tabla-voltajes-body").innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin datos.</td></tr>';
+      document.getElementById("tabla-flujos-body").innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:16px;">Sin datos.</td></tr>';
+      document.getElementById("procedimiento-container-nodal").innerHTML = '';
+      showToast("Módulo Nodal limpiado.", "info");
     }
 
     /* ==========================================================================
-       EXPORTACIÓN Y REPORTE
+       7. MÓDULO 2: FLUJO DE POTENCIA (GAUSS-SEIDEL)
        ========================================================================== */
-    function copiarReporte() {
-      if (!State.resultados) {
-        showToast("Primero calcula el circuito para generar el reporte.", "bad");
+    function actualizarSelectoresLineasGS() {
+      const fromSel = document.getElementById("gs-line-from");
+      const toSel = document.getElementById("gs-line-to");
+      const buses = StateGS.buses.map(b => b.id).sort((a, b) => a - b);
+
+      fromSel.innerHTML = "";
+      toSel.innerHTML = "";
+
+      buses.forEach(id => {
+        fromSel.innerHTML += `<option value="${id}">Barra ${id}</option>`;
+        toSel.innerHTML += `<option value="${id}">Barra ${id}</option>`;
+      });
+
+      if (buses.length >= 2) {
+        fromSel.value = buses[0];
+        toSel.value = buses[1];
+      }
+    }
+
+    function renderBarrasGS() {
+      const tbody = document.getElementById("tabla-gs-barras-body");
+      document.getElementById("badge-gs-barras").innerText = `${StateGS.buses.length} Barras`;
+
+      if (StateGS.buses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted); padding:14px;">Sin barras configuradas.</td></tr>';
         return;
       }
 
-      const { N, Ybus, Zbus, V, flujos } = State.resultados;
-      const lines = [];
+      tbody.innerHTML = StateGS.buses.map(b => {
+        const isSlack = b.type === "SLACK";
+        const vTxt = isSlack ? `${b.Vmag} ∠ ${b.Vang}°` : `Est: ${b.V0mag} ∠ ${b.V0ang}°`;
+        const pSch = isSlack ? "Slack (Calc)" : (b.Pg - b.Pl).toFixed(1);
+        const qSch = isSlack ? "Slack (Calc)" : (b.Qg - b.Ql).toFixed(1);
 
-      lines.push("================================================================================");
-      lines.push("           REPORTE DE ANÁLISIS NODAL DE REDES ELÉCTRICAS (Ybus & Zbus)           ");
-      lines.push("================================================================================\n");
+        return `
+          <tr>
+            <td><strong style="color:var(--text); font-family:var(--font-mono);">Barra ${b.id}</strong></td>
+            <td><span class="badge ${isSlack ? 'badge-info' : 'badge-subtle'}">${b.type}</span></td>
+            <td class="text-mono">${vTxt}</td>
+            <td class="text-mono">${pSch}</td>
+            <td class="text-mono">${qSch}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="editarBarraGS(${b.id})">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarBarraGS(${b.id})">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
 
-      lines.push(`• Cantidad de Nodos: ${N}`);
-      lines.push(`• Ramas de la Red: ${State.ramas.length}`);
-      lines.push(`• Fuentes Conectadas: ${State.fuentes.length}\n`);
+      actualizarSelectoresLineasGS();
+    }
 
-      lines.push("--------------------------------------------------------------------------------");
-      lines.push("1. MATRIZ DE ADMITANCIAS NODALES [Ybus] (pu)");
-      lines.push("--------------------------------------------------------------------------------");
-      for (let i = 0; i < N; i++) {
-        const row = Ybus[i].map(c => c.formatRect(4).padStart(22)).join("  ");
-        lines.push(`Fila ${i + 1}: [ ${row} ]`);
+    function agregarBarraGS() {
+      const id = parseInt(document.getElementById("gs-bus-id").value);
+      const type = document.getElementById("gs-bus-type").value;
+      if (isNaN(id) || id < 1) {
+        showToast("Número de barra inválido.", "bad");
+        return;
       }
 
-      lines.push("\n--------------------------------------------------------------------------------");
-      lines.push("2. MATRIZ DE IMPEDANCIAS NODALES [Zbus = Ybus⁻¹] (pu)");
-      lines.push("--------------------------------------------------------------------------------");
-      for (let i = 0; i < N; i++) {
-        const row = Zbus[i].map(c => c.formatRect(4).padStart(22)).join("  ");
-        lines.push(`Fila ${i + 1}: [ ${row} ]`);
+      let Vmag = 1.0, Vang = 0.0, Pl = 0, Ql = 0, Pg = 0, Qg = 0, V0mag = 1.0, V0ang = 0.0;
+
+      if (type === "SLACK") {
+        Vmag = parseFloat(document.getElementById("gs-v-mag-slack").value) || 1.0;
+        Vang = parseFloat(document.getElementById("gs-v-ang-slack").value) || 0.0;
+      } else {
+        Pl = parseFloat(document.getElementById("gs-pl").value) || 0;
+        Ql = parseFloat(document.getElementById("gs-ql").value) || 0;
+        Pg = parseFloat(document.getElementById("gs-pg").value) || 0;
+        Qg = parseFloat(document.getElementById("gs-qg").value) || 0;
+        V0mag = parseFloat(document.getElementById("gs-v0-mag").value) || 1.0;
+        V0ang = parseFloat(document.getElementById("gs-v0-ang").value) || 0.0;
       }
 
-      lines.push("\n--------------------------------------------------------------------------------");
-      lines.push("3. RESULTADOS DE VOLTAJES NODALES [V] = [Zbus] · [I]");
-      lines.push("--------------------------------------------------------------------------------");
-      lines.push("Nodo   | Tensión Rectangular (pu)       | Fasor Polar (|V| ∠ θ°)");
-      lines.push("-------+--------------------------------+------------------------");
-      for (let i = 0; i < N; i++) {
-        lines.push(`N${i + 1}     | ${V[i].formatRect(5).padEnd(30)} | ${V[i].formatPolar(5, 4)}`);
+      const existingIdx = StateGS.buses.findIndex(b => b.id === id);
+      if (existingIdx !== -1 && StateGS.editingBusId !== id) {
+        showToast(`La barra ${id} ya está registrada. Modifícala con el botón editar.`, "bad");
+        return;
       }
 
-      lines.push("\n--------------------------------------------------------------------------------");
-      lines.push("4. FLUJOS DE LÍNEA Y PÉRDIDAS (S = V · I*)");
-      lines.push("--------------------------------------------------------------------------------");
-      flujos.forEach(f => {
-        lines.push(`• Rama N${f.de} -> N${f.a}:`);
-        lines.push(`  I_${f.de}_${f.a} = ${f.Iij.formatPolar(4)} pu`);
-        lines.push(`  S_${f.de}_${f.a} = ${f.Sij.formatRect(4)} pu`);
-        lines.push(`  S_${f.a}_${f.de} = ${f.Sji.formatRect(4)} pu`);
-        lines.push(`  Pérdidas = ${f.Ploss.formatRect(4)} pu\n`);
+      const busObj = { id, type, Vmag, Vang, Pl, Ql, Pg, Qg, V0mag, V0ang };
+
+      if (StateGS.editingBusId !== null) {
+        const idx = StateGS.buses.findIndex(b => b.id === StateGS.editingBusId);
+        if (idx !== -1) StateGS.buses[idx] = busObj;
+        StateGS.editingBusId = null;
+        document.getElementById("btn-cancelar-gs-bus").style.display = "none";
+        document.getElementById("btn-agregar-gs-bus").innerText = "➕ Guardar Barra";
+      } else {
+        StateGS.buses.push(busObj);
+      }
+
+      StateGS.buses.sort((a, b) => a.id - b.id);
+      renderBarrasGS();
+      showToast(`Barra ${id} guardada con éxito.`, "ok");
+    }
+
+    function editarBarraGS(id) {
+      const b = StateGS.buses.find(x => x.id === id);
+      if (!b) return;
+      StateGS.editingBusId = id;
+      document.getElementById("gs-bus-id").value = b.id;
+      document.getElementById("gs-bus-type").value = b.type;
+      toggleCamposBarraGS();
+
+      if (b.type === "SLACK") {
+        document.getElementById("gs-v-mag-slack").value = b.Vmag;
+        document.getElementById("gs-v-ang-slack").value = b.Vang;
+      } else {
+        document.getElementById("gs-pl").value = b.Pl;
+        document.getElementById("gs-ql").value = b.Ql;
+        document.getElementById("gs-pg").value = b.Pg;
+        document.getElementById("gs-qg").value = b.Qg;
+        document.getElementById("gs-v0-mag").value = b.V0mag;
+        document.getElementById("gs-v0-ang").value = b.V0ang;
+      }
+
+      document.getElementById("btn-agregar-gs-bus").innerText = "💾 Guardar Cambios";
+      document.getElementById("btn-cancelar-gs-bus").style.display = "inline-flex";
+    }
+
+    function eliminarBarraGS(id) {
+      StateGS.buses = StateGS.buses.filter(b => b.id !== id);
+      if (StateGS.editingBusId === id) {
+        StateGS.editingBusId = null;
+        document.getElementById("btn-cancelar-gs-bus").style.display = "none";
+        document.getElementById("btn-agregar-gs-bus").innerText = "➕ Guardar Barra";
+      }
+      renderBarrasGS();
+      showToast(`Barra ${id} eliminada.`, "info");
+    }
+
+    function toggleCamposBarraGS() {
+      const type = document.getElementById("gs-bus-type").value;
+      if (type === "SLACK") {
+        document.getElementById("gs-bus-fields-slack").style.display = "grid";
+        document.getElementById("gs-bus-fields-pq").style.display = "none";
+      } else {
+        document.getElementById("gs-bus-fields-slack").style.display = "none";
+        document.getElementById("gs-bus-fields-pq").style.display = "block";
+      }
+    }
+
+    function renderLineasGS() {
+      const tbody = document.getElementById("tabla-gs-lineas-body");
+      document.getElementById("badge-gs-lineas").innerText = `${StateGS.lines.length} Líneas`;
+
+      if (StateGS.lines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted); padding:14px;">Sin líneas registradas.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = StateGS.lines.map(l => `
+        <tr>
+          <td><strong style="color:var(--text); font-family:var(--font-mono);">L${sb(String(l.from) + String(l.to))}</strong></td>
+          <td><span class="badge">B${l.from} ↔ B${l.to}</span></td>
+          <td class="text-mono">${l.type} = ${l.valStr}</td>
+          <td class="text-mono" style="color:var(--gold);">${l.Y.formatRect(4)}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="editarLineaGS(${l.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="eliminarLineaGS(${l.id})">✕</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function agregarLineaGS() {
+      try {
+        const from = parseInt(document.getElementById("gs-line-from").value);
+        const to = parseInt(document.getElementById("gs-line-to").value);
+        const type = document.getElementById("gs-line-type").value;
+        const valStr = document.getElementById("gs-line-val").value.trim();
+
+        if (from === to) throw new Error("Las barras origen y destino deben ser distintas");
+        if (!valStr) throw new Error("Ingresa el valor de la impedancia o admitancia");
+
+        const comp = Complex.parse(valStr);
+        if (comp.mag() < 1e-12) throw new Error("El valor no puede ser nulo");
+
+        const Z = type === "Z" ? comp : comp.inv();
+        const Y = type === "Y" ? comp : comp.inv();
+
+        if (StateGS.editingLineId !== null) {
+          const idx = StateGS.lines.findIndex(l => l.id === StateGS.editingLineId);
+          if (idx !== -1) StateGS.lines[idx] = { id: StateGS.editingLineId, from, to, type, valStr, Z, Y };
+          StateGS.editingLineId = null;
+          document.getElementById("btn-cancelar-gs-line").style.display = "none";
+          document.getElementById("btn-agregar-gs-line").innerText = "➕ Guardar Línea";
+        } else {
+          StateGS.lines.push({ id: Date.now() + Math.random(), from, to, type, valStr, Z, Y });
+        }
+
+        document.getElementById("gs-line-val").value = "";
+        renderLineasGS();
+        showToast("Línea guardada.", "ok");
+      } catch (err) {
+        showToast("Error en línea: " + err.message, "bad");
+      }
+    }
+
+    function editarLineaGS(id) {
+      const l = StateGS.lines.find(x => x.id === id);
+      if (!l) return;
+      StateGS.editingLineId = id;
+      document.getElementById("gs-line-from").value = l.from;
+      document.getElementById("gs-line-to").value = l.to;
+      document.getElementById("gs-line-type").value = l.type;
+      document.getElementById("gs-line-val").value = l.valStr;
+      document.getElementById("btn-agregar-gs-line").innerText = "💾 Guardar";
+      document.getElementById("btn-cancelar-gs-line").style.display = "inline-flex";
+    }
+
+    function eliminarLineaGS(id) {
+      StateGS.lines = StateGS.lines.filter(l => l.id !== id);
+      if (StateGS.editingLineId === id) {
+        StateGS.editingLineId = null;
+        document.getElementById("btn-cancelar-gs-line").style.display = "none";
+        document.getElementById("btn-agregar-gs-line").innerText = "➕ Guardar Línea";
+      }
+      renderLineasGS();
+      showToast("Línea eliminada.", "info");
+    }
+
+    function resolverGaussSeidel() {
+      if (StateGS.buses.length < 2 || StateGS.lines.length === 0) {
+        showToast("Se requiere al menos una barra Slack, barras PQ y líneas para el flujo.", "bad");
+        return;
+      }
+
+      const sbase = parseFloat(document.getElementById("gs-sbase").value) || 100;
+      const tol = parseFloat(document.getElementById("gs-tol").value) || 0.00001;
+      const maxIter = parseInt(document.getElementById("gs-max-iter").value) || 30;
+      const alpha = parseFloat(document.getElementById("gs-alpha").value) || 1.0;
+
+      StateGS.sbase = sbase;
+      StateGS.tol = tol;
+      StateGS.maxIter = maxIter;
+      StateGS.alpha = alpha;
+
+      const buses = StateGS.buses;
+      const lines = StateGS.lines;
+      const N = buses.length;
+      const b2i = {};
+      buses.forEach((b, i) => b2i[b.id] = i);
+
+      // Ensamblar admitancias mutuas y sumatorias y_ij
+      const yMatrix = Array.from({ length: N }, () => Array.from({ length: N }, () => new Complex(0, 0)));
+      lines.forEach(l => {
+        const i = b2i[l.from];
+        const j = b2i[l.to];
+        if (i !== undefined && j !== undefined) {
+          yMatrix[i][j] = yMatrix[i][j].add(l.Y);
+          yMatrix[j][i] = yMatrix[j][i].add(l.Y);
+        }
       });
 
-      lines.push("================================================================================");
-      lines.push("Generado con ANSEP Web App • Herramienta de Ingeniería Eléctrica");
+      // Sumatoria de admitancias incidentes por barra: sum_y[i] = Σ y_ij
+      const sum_y = Array.from({ length: N }, (_, i) => {
+        let s = new Complex(0, 0);
+        for (let j = 0; j < N; j++) {
+          if (i !== j) s = s.add(yMatrix[i][j]);
+        }
+        return s;
+      });
 
-      const txt = lines.join("\n");
+      // Vector de voltajes iniciales
+      const V = buses.map(b => {
+        if (b.type === "SLACK") return Complex.polar(b.Vmag, b.Vang);
+        return Complex.polar(b.V0mag, b.V0ang);
+      });
 
-      // Usar execCommand para evitar bloqueo de portapapeles en iframes
-      const textarea = document.createElement("textarea");
-      textarea.value = txt;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        showToast("¡Reporte copiado al portapapeles con éxito!", "ok");
-      } catch (e) {
-        showToast("No se pudo copiar automáticamente.", "bad");
+      const history = []; // Historial de iteraciones
+      let converged = false;
+      let finalIter = 0;
+      const procDesglose = [];
+
+      for (let k = 1; k <= maxIter; k++) {
+        let maxError = 0;
+        const snapshotV = V.map(v => new Complex(v.re, v.im));
+        const iterDetails = [];
+
+        for (let i = 0; i < N; i++) {
+          const bus = buses[i];
+          if (bus.type === "SLACK") continue; // Barra Slack fija
+
+          const P_net_pu = (bus.Pg - bus.Pl) / sbase;
+          const Q_net_pu = (bus.Qg - bus.Ql) / sbase;
+          const S_sch_conj = new Complex(P_net_pu, -Q_net_pu);
+
+          // Sumatoria y_ij * V_j (Gauss-Seidel: actualiza inmediatamente)
+          let sum_yV = new Complex(0, 0);
+          const termList = [];
+          for (let j = 0; j < N; j++) {
+            if (i !== j && yMatrix[i][j].mag() > 1e-12) {
+              const term = yMatrix[i][j].mul(V[j]);
+              sum_yV = sum_yV.add(term);
+              termList.push(`(${yMatrix[i][j].formatRect(2)})·(${V[j].formatRect(4)})`);
+            }
+          }
+
+          const V_old = V[i];
+          const termPower = S_sch_conj.div(V_old.conj());
+          const V_calc = termPower.add(sum_yV).div(sum_y[i]);
+
+          let V_new = V_calc;
+          if (alpha !== 1.0) {
+            V_new = V_old.add(V_calc.sub(V_old).mul(new Complex(alpha, 0)));
+          }
+
+          const err = V_new.sub(V_old).mag();
+          if (err > maxError) maxError = err;
+
+          V[i] = V_new;
+
+          if (k <= 3) {
+            iterDetails.push(
+              `  • Barra ${bus.id} (P${sb(bus.id)} = ${P_net_pu.toFixed(4)}, Q${sb(bus.id)} = ${Q_net_pu.toFixed(4)} pu):\n` +
+              `    V${sb(bus.id)}⁽${k}⁾ = [ (${S_sch_conj.formatRect(4)}) / (${V_old.conj().formatRect(4)}) + ${termList.join(" + ")} ] / (${sum_y[i].formatRect(2)})\n` +
+              `         = ${V_new.formatRect(5)} pu  =  ${V_new.formatPolar(5, 4)} pu   (Δ = ${err.toExponential(3)})`
+            );
+          }
+        }
+
+        history.push({
+          iter: k,
+          voltages: V.map(v => new Complex(v.re, v.im)),
+          maxError
+        });
+
+        if (k <= 3) {
+          procDesglose.push({
+            title: `Iteración k = ${k}`,
+            text: iterDetails.join("\n\n")
+          });
+        }
+
+        if (maxError < tol) {
+          converged = true;
+          finalIter = k;
+          break;
+        }
+        finalIter = k;
       }
-      document.body.removeChild(textarea);
+
+      // Cálculo de Potencia Slack, Flujos y Pérdidas
+      const slackBusIdx = buses.findIndex(b => b.type === "SLACK");
+      let S_slack = new Complex(0, 0);
+      let I_slack = new Complex(0, 0);
+
+      if (slackBusIdx !== -1) {
+        for (let j = 0; j < N; j++) {
+          if (slackBusIdx !== j && yMatrix[slackBusIdx][j].mag() > 1e-12) {
+            const I_branch = yMatrix[slackBusIdx][j].mul(V[slackBusIdx].sub(V[j]));
+            I_slack = I_slack.add(I_branch);
+          }
+        }
+        S_slack = V[slackBusIdx].mul(I_slack.conj());
+      }
+
+      // Flujos de Potencia por línea S_ij y S_ji
+      const flows = lines.map(l => {
+        const i = b2i[l.from];
+        const j = b2i[l.to];
+        const Vi = V[i];
+        const Vj = V[j];
+
+        const Iij = l.Y.mul(Vi.sub(Vj));
+        const Iji = l.Y.mul(Vj.sub(Vi));
+
+        const Sij_pu = Vi.mul(Iij.conj());
+        const Sji_pu = Vj.mul(Iji.conj());
+        const Ploss_pu = Sij_pu.add(Sji_pu);
+
+        return {
+          from: l.from,
+          to: l.to,
+          Iij,
+          Iji,
+          Sij_pu,
+          Sji_pu,
+          Ploss_pu,
+          Sij_MW: Sij_pu.re * sbase,
+          Sij_Mvar: Sij_pu.im * sbase,
+          Sji_MW: Sji_pu.re * sbase,
+          Sji_Mvar: Sji_pu.im * sbase,
+          Ploss_MW: Ploss_pu.re * sbase,
+          Ploss_Mvar: Ploss_pu.im * sbase
+        };
+      });
+
+      const totalLosses_MW = flows.reduce((acc, f) => acc + f.Ploss_MW, 0);
+      const totalLosses_Mvar = flows.reduce((acc, f) => acc + f.Ploss_Mvar, 0);
+
+      StateGS.resultados = {
+        converged,
+        finalIter,
+        history,
+        V,
+        buses,
+        lines,
+        S_slack,
+        I_slack,
+        flows,
+        totalLosses_MW,
+        totalLosses_Mvar,
+        procDesglose
+      };
+
+      renderResultadosGS();
+      showToast(converged ? `Convergencia en ${finalIter} iteraciones.` : `Alcanzado máx de ${maxIter} iteraciones.`, converged ? "ok" : "bad");
+    }
+
+    function renderResultadosGS() {
+      if (!StateGS.resultados) return;
+      const res = StateGS.resultados;
+      const sbase = StateGS.sbase;
+
+      // Status Banner
+      const banner = document.getElementById("status-banner-gs");
+      banner.className = `status-banner ${res.converged ? "ok" : "bad"}`;
+      banner.innerHTML = `
+        <span>${res.converged ? "✓" : "⚠"} Flujo de Potencia Convergido en ${res.finalIter} iteraciones</span>
+        <span class="text-mono" style="font-size:0.78rem;">Tolerancia ε = ${StateGS.tol}</span>
+      `;
+
+      // Slack Display
+      const P_slack_MW = (res.S_slack.re * sbase).toFixed(2);
+      const Q_slack_Mvar = (res.S_slack.im * sbase).toFixed(2);
+      document.getElementById("gs-slack-power-display").innerText = `${P_slack_MW} MW + j${Q_slack_Mvar} Mvar`;
+
+      // Losses Display
+      document.getElementById("gs-total-losses-display").innerText = `${res.totalLosses_MW.toFixed(2)} MW + j${res.totalLosses_Mvar.toFixed(2)} Mvar`;
+
+      // Tabla Estado de Barras
+      const tBarras = document.getElementById("tabla-gs-res-barras-body");
+      tBarras.innerHTML = res.buses.map((b, i) => {
+        const v = res.V[i];
+        let pNet = 0, qNet = 0, genTxt = "—", loadTxt = "—";
+
+        if (b.type === "SLACK") {
+          pNet = res.S_slack.re * sbase;
+          qNet = res.S_slack.im * sbase;
+          genTxt = `${pNet.toFixed(1)} / ${qNet.toFixed(1)}`;
+        } else {
+          pNet = b.Pg - b.Pl;
+          qNet = b.Qg - b.Ql;
+          if (b.Pg !== 0 || b.Qg !== 0) genTxt = `${b.Pg.toFixed(1)} / ${b.Qg.toFixed(1)}`;
+          if (b.Pl !== 0 || b.Ql !== 0) loadTxt = `${b.Pl.toFixed(1)} / ${b.Ql.toFixed(1)}`;
+        }
+
+        return `
+          <tr>
+            <td><strong style="color:var(--text); font-family:var(--font-mono);">Barra ${b.id}</strong></td>
+            <td><span class="badge ${b.type === 'SLACK' ? 'badge-info' : 'badge-subtle'}">${b.type}</span></td>
+            <td class="text-mono" style="color:var(--gold); font-weight:700;">${v.formatPolar(5, 4)}</td>
+            <td class="text-mono">${v.formatRect(5)}</td>
+            <td class="text-mono">${pNet.toFixed(2)}</td>
+            <td class="text-mono">${qNet.toFixed(2)}</td>
+            <td class="text-mono">${genTxt}</td>
+            <td class="text-mono">${loadTxt}</td>
+          </tr>
+        `;
+      }).join("");
+
+      // Tabla Flujos de Línea
+      const tFlujos = document.getElementById("tabla-gs-res-flujos-body");
+      tFlujos.innerHTML = res.flows.map(f => `
+        <tr>
+          <td><strong style="color:var(--text); font-family:var(--font-mono);">L${sb(String(f.from) + String(f.to))}</strong></td>
+          <td class="text-mono">${f.Iij.formatPolar(4, 2)}</td>
+          <td class="text-mono" style="color:var(--info);">${f.Sij_MW.toFixed(2)} + j${f.Sij_Mvar.toFixed(2)}</td>
+          <td class="text-mono">${f.Sji_MW.toFixed(2)} + j${f.Sji_Mvar.toFixed(2)}</td>
+          <td class="text-mono" style="color:var(--gold); font-weight:700;">${f.Ploss_MW.toFixed(2)} + j${f.Ploss_Mvar.toFixed(2)}</td>
+        </tr>
+      `).join("");
+
+      // Tabla de Iteraciones
+      document.getElementById("badge-gs-total-iter").innerText = `${res.finalIter} Iteraciones`;
+      const pqBuses = res.buses.filter(b => b.type === "PQ");
+
+      let thHTML = '<th>k</th>';
+      pqBuses.forEach(b => {
+        thHTML += `<th>V${sb(b.id)}⁽ᵏ⁾ Rectangular</th><th>V${sb(b.id)}⁽ᵏ⁾ Polar</th>`;
+      });
+      thHTML += '<th>Error Máx |ΔV|</th>';
+      document.getElementById("tabla-gs-iter-headers").innerHTML = thHTML;
+
+      const tIterBody = document.getElementById("tabla-gs-iter-body");
+      tIterBody.innerHTML = res.history.map(h => {
+        let row = `<td><span class="badge badge-subtle">${h.iter}</span></td>`;
+        pqBuses.forEach(b => {
+          const idx = res.buses.findIndex(x => x.id === b.id);
+          const v = h.voltages[idx];
+          row += `<td class="text-mono">${v.formatRect(5)}</td><td class="text-mono">${v.formatPolar(4, 2)}</td>`;
+        });
+        row += `<td class="text-mono" style="color:${h.maxError <= StateGS.tol ? 'var(--success)' : 'var(--text-muted)'}; font-weight:700;">${h.maxError.toExponential(3)}</td>`;
+        return `<tr>${row}</tr>`;
+      }).join("");
+
+      // Memoria de Cálculo Paso a Paso
+      const procBox = document.getElementById("procedimiento-container-gs");
+      procBox.innerHTML = `
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">1</div>
+            <div class="step-title">Formulación de la Ecuación de Gauss-Seidel</div>
+          </div>
+          <div class="step-content">
+            Para cada barra de carga i se evalúa iterativamente con actualización inmediata en cascada:
+          </div>
+          <div class="step-math">Vᵢ⁽ᵏ⁺¹⁾ = [ (Pᵢ - jQᵢ) / (Vᵢ*)⁽ᵏ⁾ + Σ_{j&lt;i} yᵢⱼ·Vⱼ⁽ᵏ⁺¹⁾ + Σ_{j&gt;i} yᵢⱼ·Vⱼ⁽ᵏ⁾ ] / (Σ yᵢⱼ)</div>
+        </div>
+
+        ${res.procDesglose.map((p, idx) => `
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-num">${idx + 2}</div>
+              <div class="step-title">${p.title}</div>
+            </div>
+            <div class="step-content">Sustitución fasorial con los voltajes más recientes:</div>
+            <div class="step-math">${p.text}</div>
+          </div>
+        `).join("")}
+
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-num">${res.procDesglose.length + 2}</div>
+            <div class="step-title">Cálculo de Potencia de la Barra Slack y Flujos de Línea</div>
+          </div>
+          <div class="step-content">
+            Corriente inyectada por el Slack y flujos bidireccionales:
+          </div>
+          <div class="step-math">I₁ = y₁₂(V₁ - V₂) + y₁₃(V₁ - V₃) = ${res.I_slack.formatRect(4)} pu
+S₁ = V₁ · I₁* = (${res.S_slack.formatRect(4)}) · 100 MVA = ${P_slack_MW} MW + j${Q_slack_Mvar} Mvar
+
+Flujos de Potencia y Pérdidas:
+${res.flows.map(f => `• Línea ${f.from}-${f.to}: S${sb(String(f.from) + String(f.to))} = ${f.Sij_MW.toFixed(2)} + j${f.Sij_Mvar.toFixed(2)} MVA,  S${sb(String(f.to) + String(f.from))} = ${f.Sji_MW.toFixed(2)} + j${f.Sji_Mvar.toFixed(2)} MVA  ==>  Pérdidas = ${f.Ploss_Mvar.toFixed(2)} Mvar`).join("\n")}</div>
+        </div>
+      `;
+    }
+
+    /* Preset Automático del Problema 1 del PDF */
+    function cargarPresetGSProblema1() {
+      StateGS.sbase = 100;
+      StateGS.tol = 0.00001;
+      StateGS.maxIter = 30;
+      StateGS.alpha = 1.0;
+
+      document.getElementById("gs-sbase").value = 100;
+      document.getElementById("gs-tol").value = 0.00001;
+      document.getElementById("gs-max-iter").value = 30;
+      document.getElementById("gs-alpha").value = 1.0;
+
+      StateGS.buses = [
+        { id: 1, type: "SLACK", Vmag: 1.0, Vang: 0.0, Pl: 0, Ql: 0, Pg: 0, Qg: 0, V0mag: 1.0, V0ang: 0.0 },
+        { id: 2, type: "PQ", Vmag: 1.0, Vang: 0.0, Pl: 400, Ql: 320, Pg: 0, Qg: 0, V0mag: 1.0, V0ang: 0.0 },
+        { id: 3, type: "PQ", Vmag: 1.0, Vang: 0.0, Pl: 300, Ql: 270, Pg: 0, Qg: 0, V0mag: 1.0, V0ang: 0.0 }
+      ];
+
+      StateGS.lines = [
+        { id: 1, from: 1, to: 2, type: "Z", valStr: "j1/30", Z: new Complex(0, 1/30), Y: new Complex(0, -30) },
+        { id: 2, from: 1, to: 3, type: "Z", valStr: "j0.0125", Z: new Complex(0, 0.0125), Y: new Complex(0, -80) },
+        { id: 3, from: 2, to: 3, type: "Z", valStr: "j0.05", Z: new Complex(0, 0.05), Y: new Complex(0, -20) }
+      ];
+
+      renderBarrasGS();
+      renderLineasGS();
+      resolverGaussSeidel();
+      showToast("⚡ Problema 1 (3 Barras Gauss-Seidel) cargado y resuelto.", "ok");
+    }
+
+    function limpiarGS() {
+      StateGS.buses = [];
+      StateGS.lines = [];
+      StateGS.resultados = null;
+      renderBarrasGS();
+      renderLineasGS();
+      document.getElementById("tabla-gs-res-barras-body").innerHTML = '';
+      document.getElementById("tabla-gs-res-flujos-body").innerHTML = '';
+      document.getElementById("tabla-gs-iter-body").innerHTML = '';
+      document.getElementById("procedimiento-container-gs").innerHTML = '';
+      showToast("Módulo Gauss-Seidel limpiado.", "info");
     }
 
     /* ==========================================================================
-       INICIALIZACIÓN DE EVENTOS DEL DOM
+       8. EXPORTACIÓN Y REPORTE AL PORTAPAPELES
+       ========================================================================== */
+    function copiarReporteNodal() {
+      if (!StateNodal.resultados) {
+        showToast("Primero calcula el sistema nodal.", "bad");
+        return;
+      }
+      const { N, Ybus, Zbus, V, flujos } = StateNodal.resultados;
+      const lines = [];
+
+      lines.push("================================================================================");
+      lines.push("          ANSEP • REPORTE DE ANÁLISIS NODAL [I] = [Y_bus][V]                    ");
+      lines.push("================================================================================\n");
+
+      lines.push(`• Cantidad de Nodos: ${N}`);
+      lines.push(`• Ramas de Línea: ${StateNodal.ramas.length}`);
+      lines.push(`• Inyecciones / Generadores: ${StateNodal.fuentes.length}\n`);
+
+      lines.push("1. MATRIZ DE ADMITANCIAS [Y_bus] (pu):");
+      for (let i = 0; i < N; i++) {
+        lines.push(`Fila ${i + 1}: [ ${Ybus[i].map(c => c.formatRect(4).padStart(20)).join("  ")} ]`);
+      }
+
+      lines.push("\n2. MATRIZ DE IMPEDANCIAS [Z_bus = Y_bus⁻¹] (pu):");
+      for (let i = 0; i < N; i++) {
+        lines.push(`Fila ${i + 1}: [ ${Zbus[i].map(c => c.formatRect(4).padStart(20)).join("  ")} ]`);
+      }
+
+      lines.push("\n3. VOLTAJES NODALES FASORIALES:");
+      for (let i = 0; i < N; i++) {
+        lines.push(`V${sb(i + 1)} = ${V[i].formatRect(5)} pu  =  ${V[i].formatPolar(5, 4)} pu`);
+      }
+
+      lines.push("\n4. FLUJOS DE POTENCIA Y PÉRDIDAS:");
+      flujos.forEach(f => {
+        lines.push(`• Rama N${f.de} -> N${f.a}:`);
+        lines.push(`  S${sb(String(f.de) + String(f.a))} = ${f.Sij.formatRect(4)} pu`);
+        lines.push(`  S${sb(String(f.a) + String(f.de))} = ${f.Sji.formatRect(4)} pu`);
+        lines.push(`  Pérdidas = ${f.Ploss.formatRect(4)} pu\n`);
+      });
+
+      const txt = lines.join("\n");
+      const ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Reporte nodal copiado al portapapeles.", "ok");
+      } catch (e) {
+        showToast("No se pudo copiar automáticamente.", "bad");
+      }
+      document.body.removeChild(ta);
+    }
+
+    function copiarReporteGS() {
+      if (!StateGS.resultados) {
+        showToast("Primero ejecuta el flujo de potencia.", "bad");
+        return;
+      }
+      const res = StateGS.resultados;
+      const lines = [];
+
+      lines.push("================================================================================");
+      lines.push("          ANSEP • REPORTE DE FLUJO DE POTENCIA (GAUSS-SEIDEL)                   ");
+      lines.push("================================================================================\n");
+
+      lines.push(`• Base del Sistema: ${StateGS.sbase} MVA`);
+      lines.push(`• Convergencia alcanzada en: ${res.finalIter} iteraciones (Tolerancia: ${StateGS.tol})`);
+      lines.push(`• Potencia Generador Slack: ${(res.S_slack.re * StateGS.sbase).toFixed(2)} MW + j${(res.S_slack.im * StateGS.sbase).toFixed(2)} Mvar`);
+      lines.push(`• Pérdidas Totales en Red: ${res.totalLosses_MW.toFixed(2)} MW + j${res.totalLosses_Mvar.toFixed(2)} Mvar\n`);
+
+      lines.push("1. PERFIL FINAL DE VOLTAJES POR BARRA:");
+      res.buses.forEach((b, i) => {
+        lines.push(`Barra ${b.id} (${b.type}): V = ${res.V[i].formatPolar(5, 4)} pu  =  ${res.V[i].formatRect(5)} pu`);
+      });
+
+      lines.push("\n2. FLUJOS DE POTENCIA Y PÉRDIDAS POR LÍNEA:");
+      res.flows.forEach(f => {
+        lines.push(`• Línea ${f.from} - ${f.to}:`);
+        lines.push(`  S${sb(String(f.from) + String(f.to))} = ${f.Sij_MW.toFixed(2)} MW + j${f.Sij_Mvar.toFixed(2)} Mvar`);
+        lines.push(`  S${sb(String(f.to) + String(f.from))} = ${f.Sji_MW.toFixed(2)} MW + j${f.Sji_Mvar.toFixed(2)} Mvar`);
+        lines.push(`  Pérdidas = ${f.Ploss_MW.toFixed(2)} MW + j${f.Ploss_Mvar.toFixed(2)} Mvar\n`);
+      });
+
+      const txt = lines.join("\n");
+      const ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Reporte de Gauss-Seidel copiado al portapapeles.", "ok");
+      } catch (e) {
+        showToast("No se pudo copiar automáticamente.", "bad");
+      }
+      document.body.removeChild(ta);
+    }
+
+    /* ==========================================================================
+       9. INICIALIZACIÓN DE EVENTOS DEL DOM
        ========================================================================== */
     window.addEventListener("DOMContentLoaded", () => {
-      // Configuración inicial de selectores
-      actualizarSelectoresNodos();
+      // Conmutadores de Modo
+      document.getElementById("tab-mode-nodal").addEventListener("click", () => switchMode("nodal"));
+      document.getElementById("tab-mode-gs").addEventListener("click", () => switchMode("gs"));
 
-      // Eventos Nodos
+      // Eventos Modo 1
+      actualizarSelectoresNodos();
       document.getElementById("btn-aplicar-nodos").addEventListener("click", () => {
         const val = parseInt(document.getElementById("num-nodos").value);
-        if (isNaN(val) || val < 1 || val > 30) {
-          showToast("Introduce un número de nodos entre 1 y 30.", "bad");
+        if (isNaN(val) || val < 1 || val > 25) {
+          showToast("Introduce un número de nodos entre 1 y 25.", "bad");
           return;
         }
-        State.numNodos = val;
+        StateNodal.numNodos = val;
         actualizarSelectoresNodos();
         showToast(`Red configurada a ${val} nodos.`, "ok");
       });
 
-      document.getElementById("btn-reiniciar-red").addEventListener("click", limpiarTodo);
-
-      // Eventos Ramas
-      document.getElementById("btn-agregar-rama").addEventListener("click", agregarRama);
+      document.getElementById("btn-reiniciar-red").addEventListener("click", limpiarNodal);
+      document.getElementById("btn-agregar-rama").addEventListener("click", agregarRamaNodal);
       document.getElementById("btn-cancelar-edit-rama").addEventListener("click", () => {
-        State.editingRamaId = null;
+        StateNodal.editingRamaId = null;
         document.getElementById("btn-cancelar-edit-rama").style.display = "none";
-        document.getElementById("btn-agregar-rama").innerText = "➕ Agregar Rama";
+        document.getElementById("btn-agregar-rama").innerText = "➕ Agregar / Guardar Rama";
         document.getElementById("rama-valor").value = "";
       });
 
-      // Eventos Fuentes
-      document.getElementById("fuente-tipo").addEventListener("change", toggleCamposFuente);
-      document.getElementById("btn-agregar-fuente").addEventListener("click", agregarFuente);
+      document.getElementById("fuente-tipo").addEventListener("change", toggleCamposFuenteNodal);
+      document.getElementById("btn-agregar-fuente").addEventListener("click", agregarFuenteNodal);
       document.getElementById("btn-cancelar-edit-fuente").addEventListener("click", () => {
-        State.editingFuenteId = null;
+        StateNodal.editingFuenteId = null;
         document.getElementById("btn-cancelar-edit-fuente").style.display = "none";
-        document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar Fuente";
+        document.getElementById("btn-agregar-fuente").innerText = "➕ Agregar / Guardar Fuente";
         document.getElementById("fuente-i-valor").value = "";
       });
 
-      // Evento Calcular
-      document.getElementById("btn-calcular").addEventListener("click", resolverSistema);
-
-      // Botones de presets
+      document.getElementById("btn-calcular-nodal").addEventListener("click", resolverSistemaNodal);
       document.getElementById("btn-ejemplo-fig2").addEventListener("click", cargarEjemploFig2);
       document.getElementById("btn-ejemplo-pizarron").addEventListener("click", cargarEjemploPizarron);
-      document.getElementById("btn-limpiar-todo").addEventListener("click", limpiarTodo);
+      document.getElementById("btn-limpiar-nodal").addEventListener("click", limpiarNodal);
+      document.getElementById("btn-copiar-nodal").addEventListener("click", copiarReporteNodal);
+      document.getElementById("btn-imprimir-nodal").addEventListener("click", () => window.print());
 
-      // Botones de exportación
-      document.getElementById("btn-copiar").addEventListener("click", copiarReporte);
-      document.getElementById("btn-imprimir").addEventListener("click", () => window.print());
-
-      // Toggle Polar/Rectangular
-      document.getElementById("formato-num").addEventListener("change", (e) => {
-        State.formatoVisual = e.target.value;
-        if (State.resultados) renderResultados();
+      document.getElementById("formato-num-nodal").addEventListener("change", (e) => {
+        StateNodal.formatoVisual = e.target.value;
+        if (StateNodal.resultados) renderResultadosNodal();
       });
 
-      // Pestañas (Tabs)
-      const tabBtns = document.querySelectorAll(".tab-btn");
-      tabBtns.forEach(btn => {
+      // Tabs del Modo 1
+      const tabBtnsNodal = document.querySelectorAll("#view-mode-nodal .tab-btn");
+      tabBtnsNodal.forEach(btn => {
         btn.addEventListener("click", () => {
-          tabBtns.forEach(b => b.classList.remove("active"));
-          document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-
+          tabBtnsNodal.forEach(b => b.classList.remove("active"));
+          document.querySelectorAll("#view-mode-nodal .tab-content").forEach(c => c.classList.remove("active"));
           btn.classList.add("active");
-          const targetId = btn.getAttribute("data-tab");
-          document.getElementById(targetId).classList.add("active");
+          document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
         });
       });
 
-      // Precargar automáticamente el Ejemplo de la Figura 2 al abrir la página
+      // Eventos Modo 2 (Gauss-Seidel)
+      document.getElementById("gs-bus-type").addEventListener("change", toggleCamposBarraGS);
+      document.getElementById("btn-agregar-gs-bus").addEventListener("click", agregarBarraGS);
+      document.getElementById("btn-cancelar-gs-bus").addEventListener("click", () => {
+        StateGS.editingBusId = null;
+        document.getElementById("btn-cancelar-gs-bus").style.display = "none";
+        document.getElementById("btn-agregar-gs-bus").innerText = "➕ Guardar Barra";
+      });
+
+      document.getElementById("btn-agregar-gs-line").addEventListener("click", agregarLineaGS);
+      document.getElementById("btn-cancelar-gs-line").addEventListener("click", () => {
+        StateGS.editingLineId = null;
+        document.getElementById("btn-cancelar-gs-line").style.display = "none";
+        document.getElementById("btn-agregar-gs-line").innerText = "➕ Guardar Línea";
+        document.getElementById("gs-line-val").value = "";
+      });
+
+      document.getElementById("btn-calcular-gs").addEventListener("click", resolverGaussSeidel);
+      document.getElementById("btn-preset-gs-prob1").addEventListener("click", cargarPresetGSProblema1);
+      document.getElementById("btn-limpiar-gs").addEventListener("click", limpiarGS);
+      document.getElementById("btn-copiar-gs").addEventListener("click", copiarReporteGS);
+      document.getElementById("btn-imprimir-gs").addEventListener("click", () => window.print());
+
+      // Tabs del Modo 2
+      const tabBtnsGS = document.querySelectorAll("#view-mode-gs .tab-btn");
+      tabBtnsGS.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtnsGS.forEach(b => b.classList.remove("active"));
+          document.querySelectorAll("#view-mode-gs .tab-content").forEach(c => c.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
+        });
+      });
+
+      // Precargar ejemplo inicial de la actividad
       cargarEjemploFig2();
+      cargarPresetGSProblema1();
+      switchMode("nodal");
     });
   </script>
 </body>
